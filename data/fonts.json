@@ -1,0 +1,30 @@
+[
+  {
+    "id": "inter-inter",
+    "name": "Modern Neutral",
+    "heading": "Inter, sans-serif",
+    "body": "Inter, sans-serif",
+    "weights": { "heading": 800, "body": 400 }
+  },
+  {
+    "id": "anton-inter",
+    "name": "Editorial Bold",
+    "heading": "Anton, sans-serif",
+    "body": "Inter, sans-serif",
+    "weights": { "heading": 400, "body": 400 }
+  },
+  {
+    "id": "playfair-source",
+    "name": "Classic Serif",
+    "heading": "'Playfair Display', serif",
+    "body": "'Source Sans 3', sans-serif",
+    "weights": { "heading": 700, "body": 400 }
+  },
+  {
+    "id": "mono-display",
+    "name": "Technical",
+    "heading": "'JetBrains Mono', monospace",
+    "body": "Inter, sans-serif",
+    "weights": { "heading": 600, "body": 400 }
+  }
+]

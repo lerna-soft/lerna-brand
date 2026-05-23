@@ -1,0 +1,26 @@
+[
+  {
+    "id": "wordmark-bold",
+    "name": "Wordmark · Bold",
+    "kind": "wordmark",
+    "description": "Heavy display type, all caps, tight tracking. Works for tech and editorial brands."
+  },
+  {
+    "id": "wordmark-serif",
+    "name": "Wordmark · Serif",
+    "kind": "wordmark",
+    "description": "Classic serif wordmark. Hospitality, fashion, legal."
+  },
+  {
+    "id": "lockup-icon-left",
+    "name": "Lockup · Icon left",
+    "kind": "lockup",
+    "description": "Geometric mark beside the wordmark. SaaS, startups."
+  },
+  {
+    "id": "monogram-circle",
+    "name": "Monogram · Circle",
+    "kind": "monogram",
+    "description": "Two-letter monogram inside a circle. Personal brands, studios."
+  }
+]

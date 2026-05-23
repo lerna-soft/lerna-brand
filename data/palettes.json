@@ -1,0 +1,32 @@
+[
+  {
+    "id": "ember",
+    "name": "Ember",
+    "colors": ["#0a0a0a", "#ff5a1f", "#f5f5f2", "#ffffff"]
+  },
+  {
+    "id": "forest",
+    "name": "Forest",
+    "colors": ["#0c2a1e", "#2f8a5b", "#e8e6dd", "#ffffff"]
+  },
+  {
+    "id": "midnight",
+    "name": "Midnight",
+    "colors": ["#0b1226", "#4f6fff", "#cfd6f7", "#ffffff"]
+  },
+  {
+    "id": "claycourt",
+    "name": "Clay Court",
+    "colors": ["#3a1f12", "#c7553a", "#e8d6c0", "#fff7ee"]
+  },
+  {
+    "id": "monoink",
+    "name": "Mono Ink",
+    "colors": ["#000000", "#444444", "#bbbbbb", "#ffffff"]
+  },
+  {
+    "id": "violetbloom",
+    "name": "Violet Bloom",
+    "colors": ["#1c0b2e", "#7c3aed", "#e9d8fd", "#ffffff"]
+  }
+]

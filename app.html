@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Lerna Brand · Builder</title>
+    <meta name="description" content="Brand-kit builder. Pick a template, customize, export." />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="app">
+    <header class="topbar topbar-app">
+      <div class="container topbar-inner">
+        <a class="brand" href="index.html" aria-label="Lerna Brand">
+          <span class="brand-mark">LERNABRAND</span>
+        </a>
+        <div class="app-actions">
+          <button type="button" class="btn btn-ghost" id="action-reset">Reset</button>
+          <button type="button" class="btn btn-primary" id="action-export" disabled>Export kit</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <aside class="app-sidebar" aria-label="Steps">
+        <ol class="step-list">
+          <li class="step is-active" data-step="template">
+            <span class="step-num">1</span>
+            <span class="step-title">Template</span>
+          </li>
+          <li class="step" data-step="identity">
+            <span class="step-num">2</span>
+            <span class="step-title">Identity</span>
+          </li>
+          <li class="step" data-step="palette">
+            <span class="step-num">3</span>
+            <span class="step-title">Palette</span>
+          </li>
+          <li class="step" data-step="typography">
+            <span class="step-num">4</span>
+            <span class="step-title">Typography</span>
+          </li>
+          <li class="step" data-step="export">
+            <span class="step-num">5</span>
+            <span class="step-title">Export</span>
+          </li>
+        </ol>
+      </aside>
+
+      <section class="app-canvas" aria-label="Preview">
+        <div class="preview-card">
+          <div class="preview-logo" id="preview-logo">
+            <svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <text x="160" y="78" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="56" fill="currentColor">YOUR BRAND</text>
+            </svg>
+          </div>
+          <p class="preview-tagline" id="preview-tagline">Your tagline lives here.</p>
+        </div>
+        <div class="preview-meta">
+          <span id="preview-step-label">Step 1 · Pick a template</span>
+        </div>
+      </section>
+
+      <aside class="app-panel" aria-label="Controls">
+        <div class="panel-step is-active" data-panel="template">
+          <h2>Pick a template</h2>
+          <p class="panel-hint">Templates load from <code>data/templates.json</code>.</p>
+          <div class="template-grid" id="template-grid">
+            <p class="loading">Loading templates…</p>
+          </div>
+        </div>
+
+        <div class="panel-step" data-panel="identity">
+          <h2>Identity</h2>
+          <label class="field">
+            <span>Brand name</span>
+            <input type="text" id="input-name" maxlength="32" placeholder="Acme" />
+          </label>
+          <label class="field">
+            <span>Tagline</span>
+            <input type="text" id="input-tagline" maxlength="64" placeholder="We make things." />
+          </label>
+          <div class="panel-nav">
+            <button type="button" class="btn btn-ghost" data-prev>Back</button>
+            <button type="button" class="btn btn-primary" data-next>Next</button>
+          </div>
+        </div>
+
+        <div class="panel-step" data-panel="palette">
+          <h2>Palette</h2>
+          <p class="panel-hint">Curated palettes from <code>data/palettes.json</code>.</p>
+          <div class="palette-grid" id="palette-grid">
+            <p class="loading">Loading palettes…</p>
+          </div>
+          <div class="panel-nav">
+            <button type="button" class="btn btn-ghost" data-prev>Back</button>
+            <button type="button" class="btn btn-primary" data-next>Next</button>
+          </div>
+        </div>
+
+        <div class="panel-step" data-panel="typography">
+          <h2>Typography</h2>
+          <p class="panel-hint">Pairings from <code>data/fonts.json</code>.</p>
+          <div class="font-grid" id="font-grid">
+            <p class="loading">Loading pairings…</p>
+          </div>
+          <div class="panel-nav">
+            <button type="button" class="btn btn-ghost" data-prev>Back</button>
+            <button type="button" class="btn btn-primary" data-next>Next</button>
+          </div>
+        </div>
+
+        <div class="panel-step" data-panel="export">
+          <h2>Export</h2>
+          <p>Download your kit as a JSON manifest. SVG and PNG export are roadmap.</p>
+          <button type="button" class="btn btn-primary btn-lg" id="export-json">Download JSON manifest</button>
+          <div class="panel-nav">
+            <button type="button" class="btn btn-ghost" data-prev>Back</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

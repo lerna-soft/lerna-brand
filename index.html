@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Lerna Brand · Free brand-kit generator</title>
+    <meta name="description" content="Free, open-source alternative to Tailor Brands. Generate a logo, palette and typography kit in minutes — no paywall, no signup." />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="home">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="brand" href="index.html" aria-label="Lerna Brand">
+          <span class="brand-mark">LERNABRAND</span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="https://github.com/lerna-soft/lerna-brand" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+        <a class="btn btn-primary topbar-cta" href="app.html">Open the app</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="container hero-copy">
+          <p class="eyebrow">Free · open-source · no signup</p>
+          <h1 class="h-display">A brand kit in minutes,<br/>not a subscription.</h1>
+          <p class="hero-lead">
+            Pick a template, name your brand, choose a palette and a font pair. Export an SVG logo and a one-page style guide.
+            All client-side. No account. No paywall.
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn-primary btn-lg" href="app.html">Start building</a>
+            <a class="btn btn-ghost btn-lg" href="https://github.com/lerna-soft/lerna-brand" target="_blank" rel="noopener">View source</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="section">
+        <div class="container">
+          <p class="eyebrow">Features</p>
+          <h2 class="h-section">What you get</h2>
+          <ul class="feature-grid">
+            <li class="feature">
+              <span class="feature-num">01</span>
+              <h3>Logo</h3>
+              <p>Pick a curated SVG template and customize wordmark, accent color, and icon. Export as SVG or PNG.</p>
+            </li>
+            <li class="feature">
+              <span class="feature-num">02</span>
+              <h3>Palette</h3>
+              <p>Six hand-picked color combinations. Or build your own. Hex, HSL and contrast checks included.</p>
+            </li>
+            <li class="feature">
+              <span class="feature-num">03</span>
+              <h3>Typography</h3>
+              <p>Curated Google Fonts pairings — heading + body — chosen for readability and tone.</p>
+            </li>
+            <li class="feature">
+              <span class="feature-num">04</span>
+              <h3>One-page guide</h3>
+              <p>Generates a printable brand sheet so your designer or developer knows what to use where.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="how" class="section section-alt">
+        <div class="container">
+          <p class="eyebrow">How it works</p>
+          <h2 class="h-section">No backend. No database.</h2>
+          <p class="section-lead">
+            Templates, palettes and fonts are static JSON in this repo. The app reads them, you customize in the browser, and you download the result.
+            Your kit never leaves your device unless you choose to save it as a GitHub Issue.
+          </p>
+          <div class="how-grid">
+            <div class="how-step">
+              <span class="how-num">1</span>
+              <h3>Pick a template</h3>
+              <p>Wordmark, lockup, or icon-only.</p>
+            </div>
+            <div class="how-step">
+              <span class="how-num">2</span>
+              <h3>Customize</h3>
+              <p>Name, colors, fonts. Live preview as you type.</p>
+            </div>
+            <div class="how-step">
+              <span class="how-num">3</span>
+              <h3>Export</h3>
+              <p>SVG, PNG and a JSON manifest. Yours forever.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-cta">
+        <div class="container">
+          <h2 class="h-section">Ready to build a brand?</h2>
+          <a class="btn btn-primary btn-lg" href="app.html">Open the generator</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>Lerna Brand is part of <a href="https://lerna-soft.github.io" target="_blank" rel="noopener">Lerna Soft</a>. MIT-licensed.</p>
+        <a href="https://github.com/lerna-soft/lerna-brand" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
