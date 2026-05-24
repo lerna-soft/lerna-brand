@@ -470,6 +470,21 @@ body[data-page="app"] {
   background: #fef2f2;
 }
 
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--fg);
+  color: var(--bg);
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  z-index: 100;
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+  max-width: calc(100% - 32px);
+}
+
 /* ============================================ */
 /*                  MOBILE                      */
 /* ============================================ */

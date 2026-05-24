@@ -8,6 +8,7 @@
   if (!isAppPage) return;
 
   const STEPS = ["template", "identity", "palette", "typography", "export"];
+  const STORAGE_KEY = "lerna-brand:state:v1";
 
   const state = {
     step: "template",
@@ -17,6 +18,36 @@
     palette: null,
     fontPair: null,
   };
+
+  // ---------- persistence ----------
+  function snapshot() {
+    return {
+      step: state.step,
+      name: state.name,
+      tagline: state.tagline,
+      templateId: state.template && state.template.id,
+      paletteId: state.palette && state.palette.id,
+      fontId: state.fontPair && state.fontPair.id,
+    };
+  }
+  let saveTimer = null;
+  function persist() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot())); } catch (e) { /* quota or unavailable */ }
+    }, 200);
+  }
+  function loadPersisted() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function clearPersisted() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+  }
 
   const els = {
     steps: document.querySelectorAll(".step"),
@@ -34,7 +65,17 @@
     btnExportJson: document.getElementById("export-json"),
     exportStatus: document.getElementById("export-status"),
     exportBrandSheet: document.getElementById("export-brandsheet"),
+    toast: document.getElementById("toast"),
   };
+
+  let toastTimer = null;
+  function showToast(msg) {
+    if (!els.toast) return;
+    els.toast.textContent = msg;
+    els.toast.hidden = false;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { els.toast.hidden = true; }, 4500);
+  }
 
   // ---------- step navigation ----------
   function goTo(step) {
@@ -49,6 +90,7 @@
     const idx = STEPS.indexOf(step);
     const titles = ["Pick a template", "Name your brand", "Pick a palette", "Pick a font pair", "Export"];
     els.stepLabel.textContent = `Step ${idx + 1} · ${titles[idx]}`;
+    persist();
   }
 
   els.steps.forEach((el) => {
@@ -80,8 +122,8 @@
   }
 
   // ---------- input wiring ----------
-  els.inputName.addEventListener("input", (e) => { state.name = e.target.value; render(); });
-  els.inputTagline.addEventListener("input", (e) => { state.tagline = e.target.value; render(); });
+  els.inputName.addEventListener("input", (e) => { state.name = e.target.value; render(); persist(); });
+  els.inputTagline.addEventListener("input", (e) => { state.tagline = e.target.value; render(); persist(); });
 
   // ---------- data loading ----------
   async function loadJson(path) {
@@ -112,6 +154,7 @@
         state.template = items.find((t) => t.id === id);
         els.templateGrid.querySelectorAll(".option").forEach((b) => b.classList.toggle("is-selected", b === btn));
         render();
+        persist();
       });
     });
   }
@@ -136,6 +179,7 @@
         state.palette = items.find((p) => p.id === id);
         els.paletteGrid.querySelectorAll(".option").forEach((b) => b.classList.toggle("is-selected", b === btn));
         render();
+        persist();
       });
     });
   }
@@ -158,6 +202,7 @@
         state.fontPair = items.find((f) => f.id === id);
         els.fontGrid.querySelectorAll(".option").forEach((b) => b.classList.toggle("is-selected", b === btn));
         render();
+        persist();
       });
     });
   }
@@ -302,9 +347,44 @@
     els.inputName.value = "";
     els.inputTagline.value = "";
     document.querySelectorAll(".option.is-selected").forEach((b) => b.classList.remove("is-selected"));
+    clearPersisted();
+    setStatus("");
     goTo("template");
     render();
   });
+
+  function restoreFromSnapshot(snap, templates, palettes, fonts) {
+    if (!snap) return false;
+    let restored = false;
+    if (snap.name) { state.name = snap.name; els.inputName.value = snap.name; restored = true; }
+    if (snap.tagline) { state.tagline = snap.tagline; els.inputTagline.value = snap.tagline; restored = true; }
+    if (snap.templateId && templates) {
+      state.template = templates.find((t) => t.id === snap.templateId) || null;
+      if (state.template) {
+        const btn = els.templateGrid.querySelector(`[data-template-id="${snap.templateId}"]`);
+        if (btn) btn.classList.add("is-selected");
+        restored = true;
+      }
+    }
+    if (snap.paletteId && palettes) {
+      state.palette = palettes.find((p) => p.id === snap.paletteId) || null;
+      if (state.palette) {
+        const btn = els.paletteGrid.querySelector(`[data-palette-id="${snap.paletteId}"]`);
+        if (btn) btn.classList.add("is-selected");
+        restored = true;
+      }
+    }
+    if (snap.fontId && fonts) {
+      state.fontPair = fonts.find((f) => f.id === snap.fontId) || null;
+      if (state.fontPair) {
+        const btn = els.fontGrid.querySelector(`[data-font-id="${snap.fontId}"]`);
+        if (btn) btn.classList.add("is-selected");
+        restored = true;
+      }
+    }
+    if (snap.step && STEPS.includes(snap.step)) goTo(snap.step);
+    return restored;
+  }
 
   // ---------- boot ----------
   (async function init() {
@@ -316,6 +396,11 @@
     renderTemplates(templates);
     renderPalettes(palettes);
     renderFonts(fonts);
+
+    const snap = loadPersisted();
+    const restored = restoreFromSnapshot(snap, templates, palettes, fonts);
+    if (restored) showToast("Restored from your last session. Hit Reset to start over.");
+
     render();
   })();
 })();
