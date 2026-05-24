@@ -104,6 +104,7 @@
     const idx = STEPS.indexOf(step);
     const titles = ["Pick a template", "Name your brand", "Pick a palette", "Pick a font pair", "Export"];
     els.stepLabel.textContent = `Step ${idx + 1} · ${titles[idx]}`;
+    if (step === "export") renderAssetGrid();
     persist();
   }
 
@@ -620,11 +621,128 @@
     return `print.html#${hash}`;
   }
 
+  // ---------- assets ----------
+  let assetTemplates = null;
+  async function loadAssets() {
+    if (assetTemplates) return assetTemplates;
+    try {
+      const r = await fetch("data/asset-templates.json");
+      assetTemplates = r.ok ? await r.json() : [];
+    } catch (e) { assetTemplates = []; }
+    return assetTemplates;
+  }
+  async function renderAssetGrid() {
+    const grid = document.getElementById("asset-grid");
+    if (!grid) return;
+    if (!isReady()) { grid.innerHTML = '<p class="loading">Pick template, name, palette and typography first.</p>'; return; }
+    const assets = await loadAssets();
+    grid.innerHTML = assets.map((a) => `
+      <div class="asset-card">
+        <div class="asset-preview" data-asset-id="${a.id}"></div>
+        <div class="asset-meta">
+          <span class="asset-name">${a.name}</span>
+          <span class="asset-dim">${a.width}×${a.height}</span>
+        </div>
+        <div class="asset-actions">
+          <button type="button" class="btn btn-ghost" data-download-asset="${a.id}" data-format="svg">SVG</button>
+          <button type="button" class="btn btn-ghost" data-download-asset="${a.id}" data-format="png">PNG</button>
+        </div>
+      </div>
+    `).join("");
+    // Render each preview asynchronously to keep UI responsive
+    requestAnimationFrame(() => {
+      grid.querySelectorAll(".asset-preview").forEach((slot) => {
+        const a = assets.find((x) => x.id === slot.dataset.assetId);
+        slot.innerHTML = window.LernaBrandRender.renderAsset(state, a);
+        const svg = slot.querySelector("svg");
+        if (svg) { svg.removeAttribute("width"); svg.removeAttribute("height"); svg.style.width = "100%"; svg.style.height = "auto"; }
+      });
+    });
+    grid.querySelectorAll("[data-download-asset]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const a = assets.find((x) => x.id === btn.dataset.downloadAsset);
+        const fmt = btn.dataset.format;
+        if (fmt === "svg") downloadAssetSvg(a);
+        else downloadAssetPng(a);
+      });
+    });
+  }
+  function downloadAssetSvg(asset) {
+    const svg = window.LernaBrandRender.renderAsset(state, asset);
+    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    downloadBlob(blob, `${slugFromName()}-${asset.id}.svg`);
+    setStatus(`Saved ${asset.name} SVG.`);
+  }
+  async function downloadAssetPng(asset) {
+    try {
+      try { await document.fonts.ready; } catch (e) {}
+      const svg = window.LernaBrandRender.renderAsset(state, asset);
+      const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("svg load")); img.src = url; });
+      const canvas = document.createElement("canvas");
+      canvas.width = asset.width;
+      canvas.height = asset.height;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = (state.palette && state.palette.colors[3]) || "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise((r) => canvas.toBlob(r, "image/png"));
+      if (!blob) throw new Error("toBlob failed");
+      downloadBlob(blob, `${slugFromName()}-${asset.id}.png`);
+      setStatus(`Saved ${asset.name} PNG.`);
+    } catch (e) {
+      console.error(e);
+      setStatus(`Failed to render ${asset.name} PNG. Try SVG.`, true);
+    }
+  }
+
+  async function exportKitZip() {
+    if (!isReady()) { setStatus("Pick a template, name, palette and typography first.", true); return; }
+    setStatus("Building ZIP…");
+    try {
+      const assets = await loadAssets();
+      const files = [];
+      const slug = slugFromName();
+      // logo SVG + PNGs
+      files.push({ name: `${slug}/logo.svg`, data: window.LernaBrandRender.renderSvg(state, { width: 1200, height: 600, background: state.palette.colors[3] }) });
+      // manifest
+      files.push({ name: `${slug}/manifest.json`, data: JSON.stringify({
+        brand: state.name, tagline: state.tagline, template: state.template,
+        palette: state.palette, typography: state.fontPair, icon: state.icon && state.icon.id,
+        generatedAt: new Date().toISOString(), tool: "lerna-brand"
+      }, null, 2) });
+      // all assets as SVG
+      for (const a of assets) {
+        files.push({ name: `${slug}/assets/${a.id}.svg`, data: window.LernaBrandRender.renderAsset(state, a) });
+      }
+      // README
+      files.push({ name: `${slug}/README.txt`, data:
+        `${state.name} · Brand kit\n` +
+        `Generated by lerna-brand on ${new Date().toLocaleString()}\n\n` +
+        `Files:\n` +
+        `  logo.svg                 — primary logo (vector)\n` +
+        `  manifest.json            — full kit definition\n` +
+        `  assets/                  — social, cards, letterhead, signature (SVG)\n\n` +
+        `Rebuild or edit at https://lerna-soft.github.io/lerna-brand/\n`
+      });
+      const blob = window.LernaBrandZip.build(files);
+      downloadBlob(blob, `${slug}-brand-kit.zip`);
+      setStatus(`Saved ${files.length}-file ZIP.`);
+    } catch (e) {
+      console.error(e);
+      setStatus("ZIP build failed: " + e.message, true);
+    }
+  }
+
   // ---------- wire export ----------
   els.btnExport.addEventListener("click", () => {
     if (!isReady()) { setStatus("Pick a template, name, palette and typography first.", true); }
     goTo("export");
   });
+  const btnZip = document.getElementById("export-zip");
+  if (btnZip) btnZip.addEventListener("click", exportKitZip);
   if (els.btnExportJson) els.btnExportJson.addEventListener("click", exportKitJson);
   document.querySelectorAll("[data-export]").forEach((btn) => {
     btn.addEventListener("click", () => {

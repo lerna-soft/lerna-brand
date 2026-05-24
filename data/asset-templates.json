@@ -1,0 +1,12 @@
+[
+  { "id": "business-card-front", "name": "Business Card · Front", "width": 1050, "height": 600 },
+  { "id": "business-card-back",  "name": "Business Card · Back",  "width": 1050, "height": 600 },
+  { "id": "instagram-post",      "name": "Instagram Post",        "width": 1080, "height": 1080 },
+  { "id": "instagram-story",     "name": "Instagram Story",       "width": 1080, "height": 1920 },
+  { "id": "fb-cover",            "name": "Facebook Cover",        "width": 1640, "height": 924 },
+  { "id": "twitter-header",      "name": "Twitter Header",        "width": 1500, "height": 500 },
+  { "id": "linkedin-banner",     "name": "LinkedIn Banner",       "width": 1584, "height": 396 },
+  { "id": "youtube-banner",      "name": "YouTube Banner",        "width": 2560, "height": 1440 },
+  { "id": "letterhead",          "name": "Letterhead A4",         "width": 2480, "height": 3508 },
+  { "id": "email-signature",     "name": "Email Signature",       "width": 600,  "height": 200 }
+]

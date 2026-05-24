@@ -208,6 +208,15 @@
             <div class="export-row">
               <button type="button" class="btn btn-primary" id="export-json">JSON manifest</button>
               <a class="btn btn-ghost" id="export-brandsheet" href="#" target="_blank" rel="noopener">Brand sheet ↗</a>
+              <button type="button" class="btn btn-primary" id="export-zip">Download brand kit (ZIP)</button>
+            </div>
+          </div>
+
+          <div class="export-group">
+            <h3 class="export-group-title">Brand assets</h3>
+            <p class="panel-hint">Each renders live from your current selections. Click an asset to download.</p>
+            <div class="asset-grid" id="asset-grid">
+              <p class="loading">Pick template, name, palette and typography first.</p>
             </div>
           </div>
 
@@ -221,6 +230,7 @@
     </main>
 
     <script src="renderer.js"></script>
+    <script src="zip.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
