@@ -140,8 +140,18 @@
   }
 
   // ---------- input wiring ----------
-  els.inputName.addEventListener("input", (e) => { state.name = e.target.value; render(); persist(); });
+  els.inputName.addEventListener("input", (e) => { state.name = e.target.value; render(); persist(); refreshTrademarkLink(); });
   els.inputTagline.addEventListener("input", (e) => { state.tagline = e.target.value; render(); persist(); });
+
+  function refreshTrademarkLink() {
+    const a = document.getElementById("util-trademark");
+    if (!a) return;
+    const q = encodeURIComponent(state.name || "");
+    a.href = q
+      ? `https://tmsearch.uspto.gov/search/search-information?searchText=${q}`
+      : "https://tmsearch.uspto.gov/";
+  }
+  refreshTrademarkLink();
 
   // ---------- tab switching ----------
   document.querySelectorAll(".tab").forEach((tab) => {

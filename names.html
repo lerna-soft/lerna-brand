@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lerna Brand · Name generator</title>
+    <meta name="description" content="Free brand name generator. Pick an industry, pick a strategy, get 30 candidates with .com / .io domain hints." />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="names">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="brand" href="index.html" aria-label="Lerna Brand">
+          <span class="brand-mark">LERNABRAND</span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="index.html#features">Features</a>
+          <a href="app.html">Builder</a>
+          <a href="names.html" aria-current="page">Names</a>
+        </nav>
+        <a class="btn btn-primary topbar-cta" href="quiz.html">Start</a>
+      </div>
+    </header>
+
+    <main class="names-shell">
+      <section class="container names-hero">
+        <p class="eyebrow">Free · open source · no signup</p>
+        <h1 class="h-display">A brand name in 30 tries,<br/>not 30 days.</h1>
+        <p class="hero-lead">Pick an industry. Pick a strategy. Get thirty candidates with a likely-available domain hint. Use what fits, ignore the rest.</p>
+      </section>
+
+      <section class="container names-controls">
+        <div class="control">
+          <label for="ind">Industry</label>
+          <select id="ind">
+            <option value="tech">Tech / SaaS</option>
+            <option value="beauty">Beauty / Wellness</option>
+            <option value="food">Food / Hospitality</option>
+            <option value="finance">Finance / Pro services</option>
+            <option value="creative">Creative / Agency</option>
+            <option value="fitness">Fitness / Sport</option>
+            <option value="media">Media / Publishing</option>
+            <option value="industrial">Industrial / Trades</option>
+          </select>
+        </div>
+        <div class="control">
+          <label for="strategy">Strategy</label>
+          <select id="strategy">
+            <option value="all">All strategies (recommended)</option>
+            <option value="concat">Concatenation (root + suffix)</option>
+            <option value="portmanteau">Portmanteau (merged words)</option>
+            <option value="madeup">Made-up (alternating vowels)</option>
+            <option value="markov">Markov (sound-alike to real names)</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary btn-lg" id="generate">Generate 30</button>
+      </section>
+
+      <section class="container names-grid" id="names-grid"></section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <p>Part of <a href="https://lerna-soft.github.io" target="_blank" rel="noopener">Lerna Soft</a>. MIT-licensed.</p>
+        <a href="https://github.com/lerna-soft/lerna-brand" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </footer>
+
+    <script>
+      (async function () {
+        "use strict";
+
+        const banks = await fetch("data/word-banks.json").then(r => r.json());
+
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+        function genConcat(ind) {
+          const b = banks[ind];
+          const which = Math.random() < 0.5 ? "prefix-root" : "root-suffix";
+          if (which === "prefix-root") return cap(pick(b.prefixes)) + cap(pick(b.roots));
+          const root = cap(pick(b.roots));
+          const sfx = pick(b.suffixes);
+          return /^[A-Z]/.test(sfx) ? root + " " + sfx : root + sfx;
+        }
+        function genPortmanteau(ind) {
+          const b = banks[ind];
+          const w1 = pick(b.roots);
+          const w2 = pick(b.prefixes.concat(b.roots));
+          const cut1 = Math.max(2, Math.floor(w1.length / 2));
+          const cut2 = Math.max(2, Math.floor(w2.length / 2));
+          return cap(w1.slice(0, cut1) + w2.slice(w2.length - cut2));
+        }
+        const vowels = "aeiouy";
+        const consonants = "bcdfghklmnprstvwz";
+        function genMadeup() {
+          const len = 5 + Math.floor(Math.random() * 3);
+          let out = "";
+          let last = Math.random() < 0.5 ? "v" : "c";
+          for (let i = 0; i < len; i++) {
+            out += last === "v" ? pick(vowels.split("")) : pick(consonants.split(""));
+            last = last === "v" ? "c" : "v";
+          }
+          return cap(out);
+        }
+        function genMarkov(ind) {
+          // Build 2-gram table from the bank's words; emit a 4-7 letter name.
+          const b = banks[ind];
+          const corpus = b.prefixes.concat(b.roots).map(s => s.toLowerCase());
+          const grams = {};
+          for (const w of corpus) {
+            const padded = "  " + w + "  ";
+            for (let i = 0; i < padded.length - 2; i++) {
+              const key = padded.slice(i, i + 2);
+              grams[key] = grams[key] || [];
+              grams[key].push(padded[i + 2]);
+            }
+          }
+          let key = "  ";
+          let out = "";
+          while (out.length < 8) {
+            const choices = grams[key];
+            if (!choices) break;
+            const next = pick(choices);
+            if (next === " " && out.length >= 4) break;
+            if (next !== " ") out += next;
+            key = key[1] + (next === " " ? " " : next);
+          }
+          return cap(out || pick(corpus));
+        }
+
+        function generateNames(ind, strategy, n) {
+          const seen = new Set();
+          const out = [];
+          let tries = 0;
+          while (out.length < n && tries < 1000) {
+            tries++;
+            let name;
+            const s = strategy === "all" ? pick(["concat", "portmanteau", "madeup", "markov"]) : strategy;
+            try {
+              if (s === "concat") name = genConcat(ind);
+              else if (s === "portmanteau") name = genPortmanteau(ind);
+              else if (s === "madeup") name = genMadeup();
+              else if (s === "markov") name = genMarkov(ind);
+            } catch (e) { continue; }
+            if (!name || name.length < 3 || name.length > 16) continue;
+            const k = name.toLowerCase();
+            if (seen.has(k)) continue;
+            seen.add(k);
+            out.push({ name, strategy: s });
+          }
+          return out;
+        }
+
+        function buildDomainGuesses(name) {
+          const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "");
+          return [`${slug}.com`, `${slug}.io`, `${slug}.co`, `try${slug}.com`, `${slug}app.com`];
+        }
+
+        function render(items) {
+          const grid = document.getElementById("names-grid");
+          grid.innerHTML = items.map(item => {
+            const slug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, "");
+            const domains = buildDomainGuesses(item.name);
+            return `
+              <article class="name-card">
+                <header class="name-card-head">
+                  <h3 class="name-card-title">${item.name}</h3>
+                  <span class="name-card-strat">${item.strategy}</span>
+                </header>
+                <ul class="name-card-domains">
+                  ${domains.map(d => `<li><a target="_blank" rel="noopener" href="https://namechk.com/r/${d.replace(/\./g, '/')}">${d} ↗</a></li>`).join("")}
+                </ul>
+                <div class="name-card-actions">
+                  <a class="btn btn-ghost" href="app.html?name=${encodeURIComponent(item.name)}">Build a logo →</a>
+                  <a class="btn btn-ghost" target="_blank" rel="noopener" href="https://tmsearch.uspto.gov/search/search-information?searchText=${encodeURIComponent(item.name)}">Trademark check ↗</a>
+                </div>
+              </article>
+            `;
+          }).join("");
+        }
+
+        const indSel = document.getElementById("ind");
+        const stratSel = document.getElementById("strategy");
+        function go() { render(generateNames(indSel.value, stratSel.value, 30)); }
+        document.getElementById("generate").addEventListener("click", go);
+        indSel.addEventListener("change", go);
+        stratSel.addEventListener("change", go);
+        go();
+      })();
+    </script>
+  </body>
+</html>

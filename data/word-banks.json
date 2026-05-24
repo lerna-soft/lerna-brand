@@ -1,0 +1,42 @@
+{
+  "tech": {
+    "prefixes": ["neo", "axiom", "zen", "spire", "loop", "qubit", "neon", "stack", "echo", "polar"],
+    "roots":    ["forge", "stack", "core", "bit", "node", "wave", "byte", "flow", "axis", "patch", "anchor", "pivot", "kernel", "thread"],
+    "suffixes": ["io", "labs", "hub", "kit", "ware", "base", "ly", "x", "ai", "ops"]
+  },
+  "beauty": {
+    "prefixes": ["lumen", "petal", "silk", "bloom", "ivy", "rose", "milk", "dew", "linen"],
+    "roots":    ["beauty", "skin", "glow", "bloom", "atelier", "salon", "muse", "veil", "garden"],
+    "suffixes": ["co", "studio", "house", "&co", "atelier", "lab"]
+  },
+  "food": {
+    "prefixes": ["wild", "ember", "salt", "cedar", "ash", "tilth", "harvest", "kindle"],
+    "roots":    ["table", "fork", "spoon", "plate", "supper", "feast", "kitchen", "loaf", "press", "smoke"],
+    "suffixes": ["co", "house", "& sons", "& daughters", "kitchen", "table"]
+  },
+  "finance": {
+    "prefixes": ["axis", "north", "atlas", "pillar", "stone", "vector", "anchor", "halcyon"],
+    "roots":    ["capital", "ledger", "trust", "vault", "yield", "credit", "compound", "vector"],
+    "suffixes": ["capital", "partners", "advisors", "group", "co", "labs"]
+  },
+  "creative": {
+    "prefixes": ["sable", "atelier", "monocle", "lithic", "syne", "fold", "pulse"],
+    "roots":    ["studio", "press", "ink", "frame", "form", "lens", "paper", "object", "house"],
+    "suffixes": ["studio", "& co", "office", "press", "lab", "atelier"]
+  },
+  "fitness": {
+    "prefixes": ["forge", "iron", "strike", "wild", "rebel", "hammer", "ember", "north"],
+    "roots":    ["strength", "pulse", "run", "rep", "athletic", "training", "club", "field"],
+    "suffixes": ["athletic", "club", "lab", "co", "house", "haus"]
+  },
+  "media": {
+    "prefixes": ["loud", "long", "near", "spool", "echo", "post", "after"],
+    "roots":    ["story", "post", "talk", "press", "frame", "stage", "voice", "channel", "letter"],
+    "suffixes": ["media", "press", "weekly", "daily", "co", "post"]
+  },
+  "industrial": {
+    "prefixes": ["iron", "north", "atlas", "axiom", "anchor", "vector", "forge"],
+    "roots":    ["works", "machine", "press", "mill", "forge", "tool", "rig", "yard"],
+    "suffixes": ["co", "works", "industries", "mfg", "& sons"]
+  }
+}

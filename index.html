@@ -20,7 +20,8 @@
         </a>
         <nav class="nav" aria-label="Primary">
           <a href="#features">Features</a>
-          <a href="#how">How it works</a>
+          <a href="#inspiration">Inspiration</a>
+          <a href="names.html">Names</a>
           <a href="https://github.com/lerna-soft/lerna-brand" target="_blank" rel="noopener">GitHub</a>
         </nav>
         <a class="btn btn-primary topbar-cta" href="app.html">Open the app</a>
@@ -72,6 +73,17 @@
         </div>
       </section>
 
+      <section id="inspiration" class="section">
+        <div class="container">
+          <p class="eyebrow">Inspiration</p>
+          <h2 class="h-section">Twenty-four kits, generated live.</h2>
+          <p class="section-lead">Each card is rendered right now from the live seeds. Pick one to keep editing.</p>
+          <div class="sample-grid" id="sample-grid">
+            <p class="loading">Loading samples…</p>
+          </div>
+        </div>
+      </section>
+
       <section id="how" class="section section-alt">
         <div class="container">
           <p class="eyebrow">How it works</p>
@@ -115,6 +127,46 @@
       </div>
     </footer>
 
+    <script src="renderer.js"></script>
+    <script>
+      (async function () {
+        const [samples, templates, palettes, fonts] = await Promise.all([
+          fetch("data/samples.json").then(r => r.ok ? r.json() : []),
+          fetch("data/templates.json").then(r => r.json()),
+          fetch("data/palettes.json").then(r => r.json()),
+          fetch("data/fonts.json").then(r => r.json()),
+        ]);
+        const grid = document.getElementById("sample-grid");
+        if (!grid) return;
+        grid.innerHTML = samples.map((s, i) => {
+          const t = templates.find(x => x.id === s.tpl);
+          const p = palettes.find(x => x.id === s.pal);
+          const f = fonts.find(x => x.id === s.f);
+          if (!t || !p || !f) return "";
+          const state = { name: s.name, tagline: s.tagline, template: t, palette: p, fontPair: f };
+          const svg = window.LernaBrandRender.renderSvg(state, { width: 400, height: 200, background: p.colors[3] });
+          return `
+            <a class="sample-card" href="app.html?sample=${i}" data-sample="${i}">
+              <div class="sample-canvas" style="background:${p.colors[3]}">${svg}</div>
+              <div class="sample-meta">
+                <span class="sample-name">${s.name}</span>
+                <span class="sample-tag">${s.tagline}</span>
+              </div>
+            </a>
+          `;
+        }).join("");
+        // Click: write a snapshot then open app
+        grid.querySelectorAll(".sample-card").forEach((a, idx) => {
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            const s = samples[idx];
+            const snap = { step: "identity", name: s.name, tagline: s.tagline, templateId: s.tpl, paletteId: s.pal, fontId: s.f };
+            try { localStorage.setItem("lerna-brand:state:v1", JSON.stringify(snap)); } catch (err) {}
+            location.href = "app.html";
+          });
+        });
+      })();
+    </script>
     <script src="app.js"></script>
   </body>
 </html>
