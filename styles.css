@@ -1075,8 +1075,34 @@ body[data-page="app"] {
 .quiz-actions {
   margin-top: 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.chip-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.chip {
+  font: inherit;
+  font-size: 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: var(--fg-mute);
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+}
+.chip:hover { color: var(--fg); border-color: var(--fg); }
+.chip.is-on {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
 }
 
 @media (max-width: 700px) {

@@ -76,88 +76,216 @@
           if (back) back.addEventListener("click", () => { qIdx--; showQuestion(qIdx); });
         }
 
-        function scoreCombination(template, palette, fontPair, prefTags) {
+        // ============ engine v2 ============
+        // Color harmony: classify palette by hue distance between c0 and c1.
+        function hexToHsl(hex) {
+          const v = String(hex || "").replace("#", "");
+          const n = v.length === 3 ? v.split("").map((c) => c + c).join("") : v;
+          const num = parseInt(n, 16);
+          if (Number.isNaN(num)) return [0, 0, 0];
+          let r = ((num >> 16) & 255) / 255, g = ((num >> 8) & 255) / 255, b = (num & 255) / 255;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b);
+          const l = (max + min) / 2;
+          let h = 0, s = 0;
+          if (max !== min) {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) { case r: h = ((g - b) / d + (g < b ? 6 : 0)); break; case g: h = ((b - r) / d + 2); break; case b: h = ((r - g) / d + 4); break; }
+            h *= 60;
+          }
+          return [h, s * 100, l * 100];
+        }
+        function paletteHarmonyTag(p) {
+          const a = hexToHsl(p.colors[0]);
+          const b = hexToHsl(p.colors[1]);
+          const diff = Math.abs(a[0] - b[0]);
+          const d = diff > 180 ? 360 - diff : diff;
+          if (d < 30) return "monochromatic";
+          if (d < 60) return "analogous";
+          if (d > 150) return "complementary";
+          if (d > 100 && d < 140) return "triadic";
+          return "neutral";
+        }
+        function paletteVibrancyTag(p) {
+          const s = hexToHsl(p.colors[1])[1];
+          if (s > 70) return "vibrant";
+          if (s > 30) return "muted";
+          return "neutral";
+        }
+
+        // Font pairing rule: serif heading + sans body (or vice versa) gets a bonus.
+        function familyType(family) {
+          if (!family) return "sans";
+          const lower = family.toLowerCase();
+          if (/(serif|playfair|merriweather|libre|lora|abril|pt serif|baskerville)/.test(lower) && !/sans/.test(lower)) return "serif";
+          if (/(mono|jetbrains|space mono)/.test(lower)) return "mono";
+          return "sans";
+        }
+        function fontPairingBonus(fp) {
+          const h = familyType(fp.heading);
+          const b = familyType(fp.body);
+          if (h === b) return 0;          // same family type — fine but unremarkable
+          if (h !== "mono" && b !== "mono") return 2; // serif/sans complementary
+          return 1;
+        }
+
+        function scoreCombination(template, palette, fontPair, prefTags, chips) {
           const tplTags = template.tags || [];
           const palTags = (palette.mood || "").split(" · ");
           const fontTags = (fontPair.mood || "").split(" · ");
-          const allTags = tplTags.concat(palTags).concat(fontTags);
-          return prefTags.reduce((acc, t) => acc + (allTags.indexOf(t) !== -1 ? 1 : 0), 0);
+          const harmony = paletteHarmonyTag(palette);
+          const vibrancy = paletteVibrancyTag(palette);
+          const allTags = tplTags.concat(palTags).concat(fontTags).concat([harmony, vibrancy]);
+          let base = prefTags.reduce((acc, t) => acc + (allTags.indexOf(t) !== -1 ? 1 : 0), 0);
+          base += fontPairingBonus(fontPair);
+          // Chip biases: + for matching, slight - for opposite
+          if (chips.has("bold") && (allTags.includes("bold") || allTags.includes("punch") || allTags.includes("vibrant"))) base += 2;
+          if (chips.has("minimal") && (allTags.includes("minimal") || allTags.includes("calm") || allTags.includes("monoink") || allTags.includes("monochromatic"))) base += 2;
+          if (chips.has("colorful") && (vibrancy === "vibrant" || harmony === "complementary" || harmony === "triadic")) base += 2;
+          if (chips.has("serif") && (familyType(fontPair.heading) === "serif" || familyType(fontPair.body) === "serif")) base += 2;
+          if (chips.has("warm") && (palTags.includes("warm") || palTags.includes("artisan") || palTags.includes("food") || palTags.includes("vibrant"))) base += 2;
+          if (chips.has("cool") && (palTags.includes("calm") || palTags.includes("fresh") || palTags.includes("fintech") || palTags.includes("corporate"))) base += 2;
+          return base;
         }
 
-        function buildVariations(prefTags, n) {
-          const scored = [];
-          for (const t of templates) for (const p of palettes) for (const f of fonts) {
-            const s = scoreCombination(t, p, f, prefTags);
-            if (s > 0) scored.push({ t: t, p: p, f: f, s: s });
+        // Weighted random sampling without replacement (temperature)
+        function sampleWeighted(items, n, seenSet) {
+          const pool = items.filter((it) => !seenSet.has(it.key));
+          if (!pool.length) return [];
+          // Boltzmann weights
+          const T = 1.2;
+          const max = pool.reduce((m, x) => Math.max(m, x.s), 0);
+          const weights = pool.map((x) => Math.exp((x.s - max) / T));
+          const total = weights.reduce((a, b) => a + b, 0);
+          const out = [];
+          const used = new Set();
+          while (out.length < n && used.size < pool.length) {
+            let r = Math.random() * total;
+            let pickIdx = -1;
+            for (let i = 0; i < pool.length; i++) {
+              if (used.has(i)) continue;
+              r -= weights[i];
+              if (r <= 0) { pickIdx = i; break; }
+            }
+            if (pickIdx === -1) {
+              for (let i = 0; i < pool.length; i++) if (!used.has(i)) { pickIdx = i; break; }
+            }
+            used.add(pickIdx);
+            out.push(pool[pickIdx]);
           }
-          // sort by score, randomize ties to keep visual diversity
-          scored.sort((a, b) => b.s - a.s || Math.random() - 0.5);
-          // ensure visual diversity: limit any single template to N/3 picks
+          return out;
+        }
+
+        const activeChips = new Set();
+        const seenCombos = new Set();
+        function buildVariations(prefTags, n) {
+          const all = [];
+          for (const t of templates) for (const p of palettes) for (const f of fonts) {
+            const key = t.id + ":" + p.id + ":" + f.id;
+            const s = scoreCombination(t, p, f, prefTags, activeChips);
+            all.push({ t, p, f, s, key });
+          }
+          // Filter: keep those with score > 0 if any, else fall back to entire pool
+          let pool = all.filter((x) => x.s > 0);
+          if (pool.length < n) pool = all;
+          // Weighted sample + diversity cap
+          const sampled = sampleWeighted(pool, n * 3, seenCombos); // oversample
           const cap = Math.max(2, Math.floor(n / 3));
           const counts = {};
           const out = [];
-          for (const item of scored) {
+          for (const item of sampled) {
             counts[item.t.id] = counts[item.t.id] || 0;
             if (counts[item.t.id] >= cap) continue;
             counts[item.t.id]++;
+            seenCombos.add(item.key);
             out.push(item);
             if (out.length >= n) break;
           }
           return out;
         }
 
-        function showVariations() {
+        function showVariations(append) {
           const prefTags = Object.keys(answers).reduce((acc, k) => acc.concat(answers[k]), []);
           try { localStorage.setItem(STORAGE_PREFS, JSON.stringify({ tags: prefTags, at: Date.now() })); } catch (e) {}
-          let combos = buildVariations(prefTags, 24);
-          if (combos.length < 24) {
-            // fill the rest with random untagged combos
-            const seen = new Set(combos.map((c) => c.t.id + ":" + c.p.id + ":" + c.f.id));
-            for (const t of templates) for (const p of palettes) for (const f of fonts) {
-              const k = t.id + ":" + p.id + ":" + f.id;
-              if (!seen.has(k)) { combos.push({ t, p, f, s: 0 }); seen.add(k); }
-              if (combos.length >= 24) break;
-            }
-          }
+          const combos = buildVariations(prefTags, 24);
           progressEl.textContent = "We curated these for you · pick one to keep editing";
-          root.innerHTML = `
-            <div class="quiz-grid" id="quiz-grid">
-              ${combos.map((c, i) => `
-                <button type="button" class="quiz-card" data-i="${i}">
-                  <div class="quiz-card-canvas" style="background:${c.p.colors[3] || '#fff'}">${
-                    window.LernaBrandRender.renderSvg(
-                      { name: "Your Brand", tagline: "", template: c.t, palette: c.p, fontPair: c.f },
-                      { width: 400, height: 200 }
-                    )
-                  }</div>
-                  <div class="quiz-card-meta">
-                    <span>${c.t.name.split(" · ")[0]}</span>
-                    <span>${c.p.name}</span>
-                  </div>
-                </button>
-              `).join("")}
-            </div>
-            <div class="quiz-actions">
-              <button type="button" class="btn btn-ghost" id="regenerate">Regenerate</button>
-              <a class="btn btn-ghost" href="app.html">Build manually instead</a>
-            </div>
-          `;
-          root.querySelectorAll(".quiz-card").forEach((b) => {
+
+          const chips = [
+            { id: "bold", label: "Bolder" },
+            { id: "minimal", label: "More minimal" },
+            { id: "colorful", label: "More colorful" },
+            { id: "warm", label: "Warmer" },
+            { id: "cool", label: "Cooler" },
+            { id: "serif", label: "Serif" },
+          ];
+          const chipBar = chips.map((c) => `
+            <button type="button" class="chip ${activeChips.has(c.id) ? "is-on" : ""}" data-chip="${c.id}">${c.label}</button>
+          `).join("");
+
+          const cardsHtml = combos.map((c, i) => `
+            <button type="button" class="quiz-card" data-key="${c.key}">
+              <div class="quiz-card-canvas" style="background:${c.p.colors[3] || '#fff'}">${
+                window.LernaBrandRender.renderSvg(
+                  { name: "Your Brand", tagline: "", template: c.t, palette: c.p, fontPair: c.f },
+                  { width: 400, height: 200 }
+                )
+              }</div>
+              <div class="quiz-card-meta">
+                <span>${c.t.name.split(" · ")[0]}</span>
+                <span>${c.p.name}</span>
+              </div>
+            </button>
+          `).join("");
+
+          if (append) {
+            const grid = document.getElementById("quiz-grid");
+            grid.insertAdjacentHTML("beforeend", cardsHtml);
+          } else {
+            root.innerHTML = `
+              <div class="chip-bar">${chipBar}</div>
+              <div class="quiz-grid" id="quiz-grid">${cardsHtml}</div>
+              <div class="quiz-actions">
+                <button type="button" class="btn btn-ghost" id="more">Show 24 more</button>
+                <button type="button" class="btn btn-ghost" id="regenerate">Regenerate</button>
+                <a class="btn btn-ghost" href="app.html">Build manually instead</a>
+              </div>
+            `;
+            document.querySelectorAll(".chip").forEach((b) => {
+              b.addEventListener("click", () => {
+                const id = b.dataset.chip;
+                if (activeChips.has(id)) activeChips.delete(id); else activeChips.add(id);
+                seenCombos.clear();
+                showVariations(false);
+              });
+            });
+            document.getElementById("more").addEventListener("click", () => showVariations(true));
+            document.getElementById("regenerate").addEventListener("click", () => {
+              seenCombos.clear();
+              showVariations(false);
+            });
+          }
+          // wire card clicks
+          document.querySelectorAll(".quiz-card").forEach((b) => {
+            if (b.dataset.wired) return;
+            b.dataset.wired = "1";
             b.addEventListener("click", () => {
-              const c = combos[+b.dataset.i];
+              const key = b.dataset.key;
+              const found = combos.find((c) => c.key === key) || ((window._allCombos || []).find((c) => c.key === key));
+              if (!found) return;
               const snap = {
                 step: "identity",
                 name: "",
                 tagline: "",
-                templateId: c.t.id,
-                paletteId: c.p.id,
-                fontId: c.f.id,
+                templateId: found.t.id,
+                paletteId: found.p.id,
+                fontId: found.f.id,
               };
               try { localStorage.setItem(STORAGE_STATE, JSON.stringify(snap)); } catch (e) {}
               location.href = "app.html";
             });
           });
-          document.getElementById("regenerate").addEventListener("click", () => showVariations());
+          // remember combos for "show more" click resolution
+          window._allCombos = (window._allCombos || []).concat(combos);
         }
 
         if (!quiz || !templates || !palettes || !fonts) {
