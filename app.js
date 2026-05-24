@@ -125,6 +125,38 @@
   els.inputName.addEventListener("input", (e) => { state.name = e.target.value; render(); persist(); });
   els.inputTagline.addEventListener("input", (e) => { state.tagline = e.target.value; render(); persist(); });
 
+  // ---------- contrast helpers ----------
+  function hexToRgbArr(hex) {
+    const v = String(hex || "").replace("#", "");
+    const n = v.length === 3 ? v.split("").map((c) => c + c).join("") : v;
+    const num = parseInt(n, 16);
+    if (Number.isNaN(num)) return [0, 0, 0];
+    return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+  }
+  function relativeLuminance(hex) {
+    const rgb = hexToRgbArr(hex).map((c) => {
+      const v = c / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  }
+  function contrastRatio(hexA, hexB) {
+    const lA = relativeLuminance(hexA);
+    const lB = relativeLuminance(hexB);
+    const lighter = Math.max(lA, lB);
+    const darker = Math.min(lA, lB);
+    return (lighter + 0.05) / (darker + 0.05);
+  }
+  function contrastBadge(palette) {
+    // Primary text (colors[0]) vs background (colors[3]); fallback to colors[2] if [3] missing.
+    const fg = palette.colors[0];
+    const bg = palette.colors[3] || palette.colors[2];
+    const r = contrastRatio(fg, bg);
+    const label = r >= 7 ? "AAA" : r >= 4.5 ? "AA" : r >= 3 ? "AA Large" : "Fail";
+    const pass = r >= 4.5;
+    return { ratio: r.toFixed(1), label: label, pass: pass };
+  }
+
   // ---------- data loading ----------
   async function loadJson(path) {
     try {
@@ -164,15 +196,21 @@
       els.paletteGrid.innerHTML = `<p class="loading">No palettes yet. Add one to <code>data/palettes.json</code>.</p>`;
       return;
     }
-    els.paletteGrid.innerHTML = items.map((p) => `
+    els.paletteGrid.innerHTML = items.map((p) => {
+      const c = contrastBadge(p);
+      return `
       <button type="button" class="option" data-palette-id="${p.id}">
         <span class="option-title">${p.name}</span>
         <span class="palette-swatches">
-          ${p.colors.map((c) => `<span style="background:${c}"></span>`).join("")}
+          ${p.colors.map((col) => `<span style="background:${col}"></span>`).join("")}
         </span>
-        ${p.mood ? `<span class="option-meta">${p.mood}</span>` : ""}
+        <span class="option-foot">
+          ${p.mood ? `<span class="option-meta">${p.mood}</span>` : "<span></span>"}
+          <span class="contrast-badge ${c.pass ? "is-pass" : "is-warn"}" title="Primary text on background">${c.label} · ${c.ratio}:1</span>
+        </span>
       </button>
-    `).join("");
+    `;
+    }).join("");
     els.paletteGrid.querySelectorAll(".option").forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.dataset.paletteId;
