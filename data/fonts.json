@@ -2,6 +2,7 @@
   {
     "id": "inter-inter",
     "name": "Modern Neutral",
+    "mood": "tech · saas",
     "heading": "Inter, sans-serif",
     "body": "Inter, sans-serif",
     "weights": { "heading": 800, "body": 400 }
@@ -9,6 +10,7 @@
   {
     "id": "anton-inter",
     "name": "Editorial Bold",
+    "mood": "publisher · sport",
     "heading": "Anton, sans-serif",
     "body": "Inter, sans-serif",
     "weights": { "heading": 400, "body": 400 }
@@ -16,15 +18,105 @@
   {
     "id": "playfair-source",
     "name": "Classic Serif",
+    "mood": "hospitality · legal",
     "heading": "'Playfair Display', serif",
     "body": "'Source Sans 3', sans-serif",
     "weights": { "heading": 700, "body": 400 }
   },
   {
-    "id": "mono-display",
+    "id": "mono-inter",
     "name": "Technical",
+    "mood": "developer · ops",
     "heading": "'JetBrains Mono', monospace",
     "body": "Inter, sans-serif",
     "weights": { "heading": 600, "body": 400 }
+  },
+  {
+    "id": "montserrat-lora",
+    "name": "Warm Professional",
+    "mood": "consulting · b2b",
+    "heading": "Montserrat, sans-serif",
+    "body": "Lora, serif",
+    "weights": { "heading": 700, "body": 400 }
+  },
+  {
+    "id": "bebas-roboto",
+    "name": "Sport Punch",
+    "mood": "fitness · streetwear",
+    "heading": "'Bebas Neue', sans-serif",
+    "body": "Roboto, sans-serif",
+    "weights": { "heading": 400, "body": 400 }
+  },
+  {
+    "id": "dmserif-dmsans",
+    "name": "Luxury Feminine",
+    "mood": "beauty · boutique",
+    "heading": "'DM Serif Display', serif",
+    "body": "'DM Sans', sans-serif",
+    "weights": { "heading": 400, "body": 400 }
+  },
+  {
+    "id": "spacegrotesk-spacemono",
+    "name": "SaaS Developer",
+    "mood": "startup · devtools",
+    "heading": "'Space Grotesk', sans-serif",
+    "body": "'Space Mono', monospace",
+    "weights": { "heading": 700, "body": 400 }
+  },
+  {
+    "id": "syne-inter",
+    "name": "Creative Agency",
+    "mood": "agency · design",
+    "heading": "Syne, sans-serif",
+    "body": "Inter, sans-serif",
+    "weights": { "heading": 800, "body": 400 }
+  },
+  {
+    "id": "oswald-roboto",
+    "name": "Industrial",
+    "mood": "manufacturing · trades",
+    "heading": "Oswald, sans-serif",
+    "body": "Roboto, sans-serif",
+    "weights": { "heading": 700, "body": 400 }
+  },
+  {
+    "id": "abril-ptserif",
+    "name": "Fashion Editorial",
+    "mood": "magazine · fashion",
+    "heading": "'Abril Fatface', serif",
+    "body": "'PT Serif', serif",
+    "weights": { "heading": 400, "body": 400 }
+  },
+  {
+    "id": "raleway-merriweather",
+    "name": "Corporate Trust",
+    "mood": "finance · enterprise",
+    "heading": "Raleway, sans-serif",
+    "body": "Merriweather, serif",
+    "weights": { "heading": 700, "body": 400 }
+  },
+  {
+    "id": "worksans-worksans",
+    "name": "Minimal Tech",
+    "mood": "product · ui",
+    "heading": "'Work Sans', sans-serif",
+    "body": "'Work Sans', sans-serif",
+    "weights": { "heading": 700, "body": 400 }
+  },
+  {
+    "id": "archivoblack-archivo",
+    "name": "Modern Punch",
+    "mood": "media · podcast",
+    "heading": "'Archivo Black', sans-serif",
+    "body": "Archivo, sans-serif",
+    "weights": { "heading": 400, "body": 400 }
+  },
+  {
+    "id": "librebaskerville-opensans",
+    "name": "Traditional Print",
+    "mood": "publishing · academic",
+    "heading": "'Libre Baskerville', serif",
+    "body": "'Open Sans', sans-serif",
+    "weights": { "heading": 700, "body": 400 }
   }
 ]

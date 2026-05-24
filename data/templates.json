@@ -3,7 +3,7 @@
     "id": "wordmark-bold",
     "name": "Wordmark · Bold",
     "kind": "wordmark",
-    "description": "Heavy display type, all caps, tight tracking. Works for tech and editorial brands."
+    "description": "Heavy display type, all caps, tight tracking. Tech and editorial brands."
   },
   {
     "id": "wordmark-serif",
@@ -12,15 +12,56 @@
     "description": "Classic serif wordmark. Hospitality, fashion, legal."
   },
   {
+    "id": "wordmark-underline",
+    "name": "Wordmark · Underline",
+    "kind": "wordmark",
+    "description": "Wordmark with a thick accent underline. Bold, editorial.",
+    "variant": "underline"
+  },
+  {
+    "id": "wordmark-bracket",
+    "name": "Wordmark · Bracket",
+    "kind": "wordmark",
+    "description": "Name framed by square brackets. Code, tools, startups.",
+    "variant": "bracket"
+  },
+  {
+    "id": "wordmark-stacked",
+    "name": "Wordmark · Stacked",
+    "kind": "wordmark",
+    "description": "Two lines: brand on top, tagline label beneath in mono. Studios.",
+    "variant": "stacked"
+  },
+  {
     "id": "lockup-icon-left",
     "name": "Lockup · Icon left",
     "kind": "lockup",
-    "description": "Geometric mark beside the wordmark. SaaS, startups."
+    "description": "Geometric mark beside the wordmark. SaaS, startups.",
+    "variant": "square"
+  },
+  {
+    "id": "lockup-dot-left",
+    "name": "Lockup · Dot",
+    "kind": "lockup",
+    "description": "Accent dot before the wordmark. Minimal, podcast.",
+    "variant": "dot"
   },
   {
     "id": "monogram-circle",
     "name": "Monogram · Circle",
     "kind": "monogram",
     "description": "Two-letter monogram inside a circle. Personal brands, studios."
+  },
+  {
+    "id": "emblem-badge",
+    "name": "Emblem · Badge",
+    "kind": "emblem",
+    "description": "Brand inside a pill badge with year/tagline label. Heritage, craft."
+  },
+  {
+    "id": "abstract-mark",
+    "name": "Abstract Mark",
+    "kind": "abstract",
+    "description": "Stacked diamond shape paired with the wordmark. Modern, agency."
   }
 ]

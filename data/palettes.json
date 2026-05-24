@@ -2,31 +2,121 @@
   {
     "id": "ember",
     "name": "Ember",
+    "mood": "energetic · tech",
     "colors": ["#0a0a0a", "#ff5a1f", "#f5f5f2", "#ffffff"]
   },
   {
     "id": "forest",
     "name": "Forest",
+    "mood": "earthy · calm",
     "colors": ["#0c2a1e", "#2f8a5b", "#e8e6dd", "#ffffff"]
   },
   {
     "id": "midnight",
     "name": "Midnight",
+    "mood": "professional · trustworthy",
     "colors": ["#0b1226", "#4f6fff", "#cfd6f7", "#ffffff"]
   },
   {
     "id": "claycourt",
     "name": "Clay Court",
+    "mood": "warm · hospitality",
     "colors": ["#3a1f12", "#c7553a", "#e8d6c0", "#fff7ee"]
   },
   {
     "id": "monoink",
     "name": "Mono Ink",
+    "mood": "minimal · editorial",
     "colors": ["#000000", "#444444", "#bbbbbb", "#ffffff"]
   },
   {
     "id": "violetbloom",
     "name": "Violet Bloom",
+    "mood": "creative · bold",
     "colors": ["#1c0b2e", "#7c3aed", "#e9d8fd", "#ffffff"]
+  },
+  {
+    "id": "lagoon",
+    "name": "Lagoon",
+    "mood": "fresh · modern",
+    "colors": ["#062a30", "#0e9aa7", "#cdeef0", "#ffffff"]
+  },
+  {
+    "id": "sunset",
+    "name": "Sunset",
+    "mood": "warm · optimistic",
+    "colors": ["#3d1538", "#ff6b6b", "#ffe066", "#fff8e7"]
+  },
+  {
+    "id": "graphite",
+    "name": "Graphite",
+    "mood": "industrial · serious",
+    "colors": ["#1a1a1a", "#5a5a5a", "#c4c4c4", "#f0f0f0"]
+  },
+  {
+    "id": "rose-clay",
+    "name": "Rose Clay",
+    "mood": "soft · feminine",
+    "colors": ["#3d2828", "#c47b7b", "#f1d4d4", "#fffafa"]
+  },
+  {
+    "id": "moss-noir",
+    "name": "Moss Noir",
+    "mood": "natural · premium",
+    "colors": ["#1f2616", "#5c7a3a", "#d8e0c4", "#f6f4ed"]
+  },
+  {
+    "id": "deepsea",
+    "name": "Deep Sea",
+    "mood": "calm · corporate",
+    "colors": ["#0a1f44", "#1e6091", "#b6d3eb", "#ffffff"]
+  },
+  {
+    "id": "saffron",
+    "name": "Saffron",
+    "mood": "vibrant · food",
+    "colors": ["#2c1810", "#e8930e", "#f4d4a0", "#fffaf2"]
+  },
+  {
+    "id": "matcha",
+    "name": "Matcha",
+    "mood": "wellness · organic",
+    "colors": ["#1e2d1e", "#7ba05b", "#dde6cf", "#f7faf2"]
+  },
+  {
+    "id": "neon-night",
+    "name": "Neon Night",
+    "mood": "playful · youth",
+    "colors": ["#0a0e27", "#ff2e93", "#00f0ff", "#ffffff"]
+  },
+  {
+    "id": "porcelain",
+    "name": "Porcelain",
+    "mood": "luxury · beauty",
+    "colors": ["#2a2a2a", "#a48a78", "#ebe1d6", "#ffffff"]
+  },
+  {
+    "id": "blueprint",
+    "name": "Blueprint",
+    "mood": "engineering · technical",
+    "colors": ["#0d2438", "#2563eb", "#dbe7f7", "#f8fafc"]
+  },
+  {
+    "id": "terracotta",
+    "name": "Terracotta",
+    "mood": "artisan · warm",
+    "colors": ["#3a1e1a", "#d4623a", "#f4d8c4", "#fffbf6"]
+  },
+  {
+    "id": "lavender-field",
+    "name": "Lavender Field",
+    "mood": "calm · wellness",
+    "colors": ["#2e1f4a", "#9181c4", "#e8e0f3", "#fdfcff"]
+  },
+  {
+    "id": "cyber-mint",
+    "name": "Cyber Mint",
+    "mood": "fintech · fresh",
+    "colors": ["#0a1f1a", "#00d4a8", "#c8f0e2", "#f5fdfa"]
   }
 ]
