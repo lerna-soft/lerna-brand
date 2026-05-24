@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Brand Sheet · Lerna Brand</title>
+    <title>Brand Book · Lerna Brand</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,7 +27,7 @@
         border-bottom: 1px solid var(--line);
       }
       .toolbar h1 { font-size: 14px; margin: 0; font-weight: 600; }
-      .toolbar .links { display: flex; gap: 12px; }
+      .toolbar .links { display: flex; gap: 12px; align-items: center; }
       .toolbar a, .toolbar button {
         font: inherit; font-size: 13px;
         padding: 8px 14px; border: 1px solid var(--line); background: #fff; color: var(--fg);
@@ -35,80 +35,156 @@
       }
       .toolbar button.primary { background: var(--fg); color: #fff; border-color: var(--fg); }
 
-      .sheet {
-        background: #ffffff;
+      .book {
         max-width: 820px;
         margin: 24px auto;
+      }
+      .page {
+        background: #ffffff;
+        margin-bottom: 24px;
         padding: 56px 64px;
+        min-height: 1080px;
         box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 12px 36px -16px rgba(0,0,0,0.15);
+        position: relative;
+      }
+      .page-num {
+        position: absolute;
+        bottom: 24px; right: 28px;
+        font-family: var(--font-mono);
+        font-size: 10px; color: var(--fg-mute);
+        letter-spacing: 2px;
+      }
+      .page-label {
+        position: absolute;
+        top: 24px; left: 28px;
+        font-family: var(--font-mono);
+        font-size: 10px; color: var(--fg-mute);
+        letter-spacing: 2px;
+        text-transform: uppercase;
       }
 
-      .cover { text-align: center; padding-bottom: 48px; border-bottom: 1px solid var(--line); margin-bottom: 48px; }
-      .cover .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; color: var(--fg-mute); text-transform: uppercase; }
-      .cover h2 { font-size: 48px; margin: 16px 0 0; letter-spacing: -1px; }
-      .cover p { color: var(--fg-mute); font-size: 16px; margin: 8px 0 0; }
+      .h-num { font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; color: var(--fg-mute); }
+      .h-title { font-size: 32px; margin: 4px 0 24px; font-weight: 700; letter-spacing: -0.5px; }
 
-      .section { margin-bottom: 48px; page-break-inside: avoid; }
-      .section-head {
-        display: flex; justify-content: space-between; align-items: baseline;
-        border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 20px;
+      /* Cover */
+      .cover { text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 1080px; }
+      .cover .label { font-family: var(--font-mono); font-size: 12px; letter-spacing: 4px; color: var(--fg-mute); text-transform: uppercase; }
+      .cover h2 { font-size: 72px; margin: 16px 0 8px; letter-spacing: -2px; }
+      .cover p { color: var(--fg-mute); font-size: 18px; margin: 0; max-width: 500px; }
+      .cover-logo { margin: 32px 0; }
+      .cover-logo svg { width: 360px; height: auto; }
+
+      /* Contents */
+      .toc { display: flex; flex-direction: column; gap: 4px; }
+      .toc-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted var(--line); }
+      .toc-row .t { font-size: 14px; }
+      .toc-row .p { font-family: var(--font-mono); font-size: 12px; color: var(--fg-mute); }
+
+      /* Logo construction grid */
+      .construction { position: relative; background: var(--bg-alt); padding: 40px; border: 1px solid var(--line); }
+      .construction-frame { position: relative; }
+      .construction-frame svg { width: 100%; height: auto; display: block; }
+      .construction-frame::before,
+      .construction-frame::after {
+        content: ""; position: absolute; background: rgba(255,90,31,0.2); pointer-events: none;
       }
-      .section-head h3 { font-size: 14px; margin: 0; font-weight: 600; }
-      .section-head .num { font-family: var(--font-mono); font-size: 11px; color: var(--fg-mute); letter-spacing: 2px; }
+      .construction-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; font-size: 12px; }
+      .construction-meta b { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; }
 
-      .logo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-      .logo-card { border: 1px solid var(--line); padding: 24px; aspect-ratio: 2 / 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-      .logo-card svg { width: 100%; height: auto; max-height: 100%; }
-      .logo-card.dark { background: #0a0a0a; }
-      .logo-card .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--fg-mute); text-transform: uppercase; align-self: flex-end; }
-      .logo-large { border: 1px solid var(--line); padding: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-      .logo-large svg { width: 100%; max-width: 560px; height: auto; }
+      /* Logo variants grid */
+      .variants { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .variant-card { border: 1px solid var(--line); padding: 32px; aspect-ratio: 2 / 1; display: flex; align-items: center; justify-content: center; }
+      .variant-card.dark { background: #0a0a0a; }
+      .variant-card svg { width: 100%; max-height: 100%; }
+      .variant-label { font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
 
-      .palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-      .swatch { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
-      .swatch-color { height: 96px; }
-      .swatch-meta { padding: 10px 12px; font-family: var(--font-mono); font-size: 11px; }
-      .swatch-meta .hex { font-weight: 600; color: var(--fg); }
-      .swatch-meta .rgb { color: var(--fg-mute); margin-top: 2px; font-size: 10px; }
+      /* Minimum sizes */
+      .sizes { display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+      .size-cell { text-align: center; }
+      .size-cell svg { display: block; }
+      .size-cell .lbl { font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); margin-top: 8px; letter-spacing: 1px; }
 
-      .typography-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-      .typo { border: 1px solid var(--line); padding: 20px; }
-      .typo .role { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--fg-mute); text-transform: uppercase; }
-      .typo .family { font-family: var(--font-mono); font-size: 11px; color: var(--fg-mute); margin: 4px 0 12px; }
-      .typo .sample { font-size: 40px; line-height: 1.1; margin: 0; }
-      .typo .sample.body { font-size: 16px; line-height: 1.5; font-weight: 400; }
+      /* Do/Don't */
+      .donts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+      .dont { border: 1px solid var(--line); padding: 20px; aspect-ratio: 1; display: flex; flex-direction: column; }
+      .dont .x { font-size: 22px; font-weight: 700; }
+      .dont.do .x { color: #2f8a5b; }
+      .dont.no .x { color: #b91c1c; }
+      .dont .pic { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+      .dont .pic svg { width: 100%; max-height: 100%; }
+      .dont .pic.stretch svg { transform: scaleX(1.5) scaleY(0.7); }
+      .dont .pic.rotate svg { transform: rotate(10deg); }
+      .dont .pic.photo { background: linear-gradient(120deg, #aaa, #444); }
+      .dont .cap { font-size: 11px; color: var(--fg-mute); margin-top: 8px; line-height: 1.4; }
 
-      .scale { display: grid; grid-template-columns: 60px 1fr; gap: 12px; align-items: baseline; padding-block: 4px; border-bottom: 1px dotted var(--line); }
-      .scale:last-child { border-bottom: 0; }
+      /* Color system */
+      .colors { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .color-tile { border: 1px solid var(--line); padding: 0; overflow: hidden; }
+      .color-tile .top { height: 140px; }
+      .color-tile .info { padding: 14px 16px; font-family: var(--font-mono); font-size: 12px; }
+      .color-tile .role { font-weight: 600; color: var(--fg); }
+      .color-tile .row { color: var(--fg-mute); display: flex; justify-content: space-between; margin-top: 4px; }
+
+      /* Color usage 60/30/10 */
+      .usage-bar { display: flex; height: 140px; border: 1px solid var(--line); margin: 16px 0; }
+      .usage-bar > div { color: #fff; padding: 12px; font-family: var(--font-mono); font-size: 11px; }
+
+      /* Type system */
+      .type-spec { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+      .type-spec .col { border: 1px solid var(--line); padding: 20px; }
+      .type-spec h4 { margin: 0 0 4px; font-family: var(--font-mono); font-size: 11px; color: var(--fg-mute); text-transform: uppercase; letter-spacing: 2px; }
+      .type-spec p { margin: 0; line-height: 1.2; }
+      .scale-row { display: grid; grid-template-columns: 60px 1fr; gap: 12px; align-items: baseline; padding-block: 6px; border-bottom: 1px dotted var(--line); }
+      .scale-row:last-child { border-bottom: 0; }
       .scale-meta { font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); }
 
-      .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-      .rule { border: 1px solid var(--line); padding: 16px; }
-      .rule-head { display: flex; align-items: center; gap: 8px; font-size: 12px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-      .rule.do .rule-head::before { content: "✓"; color: #2f8a5b; font-weight: 700; }
-      .rule.dont .rule-head::before { content: "✕"; color: #b91c1c; font-weight: 700; }
-      .rule p { margin: 0; font-size: 13px; color: var(--fg-mute); line-height: 1.5; }
+      /* Applications */
+      .apps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .app-card { border: 1px solid var(--line); aspect-ratio: 16/9; overflow: hidden; background: var(--bg-alt); display: flex; align-items: center; justify-content: center; }
+      .app-card svg { width: 100%; height: 100%; }
+      .app-label { font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
 
-      .colophon {
-        margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line);
-        display: flex; justify-content: space-between;
-        font-family: var(--font-mono); font-size: 10px; color: var(--fg-mute); letter-spacing: 1px;
-      }
+      /* Tone of voice */
+      .voice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .voice-card { border: 1px solid var(--line); padding: 20px; }
+      .voice-card h4 { margin: 0 0 6px; font-size: 13px; }
+      .voice-card p { margin: 0; font-size: 13px; color: var(--fg-mute); line-height: 1.5; }
 
       .empty { text-align: center; padding: 80px 24px; color: var(--fg-mute); }
       .empty a { color: var(--fg); }
 
+      .prefill {
+        background: var(--bg-alt);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+        margin: 0 0 16px;
+      }
+      .prefill label { display: block; margin-bottom: 10px; font-size: 12px; color: var(--fg-mute); }
+      .prefill input, .prefill textarea {
+        width: 100%; font: inherit; font-size: 13px;
+        padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px;
+        background: #fff; color: var(--fg);
+      }
+      .prefill textarea { resize: vertical; min-height: 60px; }
+
       @media print {
-        .toolbar { display: none; }
+        .toolbar, .prefill { display: none; }
         body { background: #ffffff; }
-        .sheet { margin: 0; box-shadow: none; padding: 24mm 18mm; max-width: 100%; }
+        .book { margin: 0; max-width: 100%; }
+        .page {
+          margin: 0; box-shadow: none;
+          padding: 18mm 16mm; min-height: 0;
+          page-break-after: always;
+        }
+        .page:last-child { page-break-after: auto; }
         @page { size: A4; margin: 0; }
       }
     </style>
   </head>
   <body>
     <header class="toolbar">
-      <h1>Brand sheet</h1>
+      <h1>Brand book</h1>
       <div class="links">
         <a href="app.html">← Back to builder</a>
         <button type="button" class="primary" id="btn-print">Print / Save PDF</button>
@@ -136,33 +212,51 @@
         function readLocal() {
           try { return JSON.parse(localStorage.getItem("lerna-brand:state:v1") || "null"); } catch (e) { return null; }
         }
-
-        async function loadJson(path) {
-          try { const r = await fetch(path); return r.ok ? await r.json() : null; } catch (e) { return null; }
-        }
+        async function loadJson(p) { try { const r = await fetch(p); return r.ok ? await r.json() : null; } catch (e) { return null; } }
 
         function hexToRgb(hex) {
           const v = String(hex || "").replace("#", "");
           const n = v.length === 3 ? v.split("").map((c) => c + c).join("") : v;
           const num = parseInt(n, 16);
-          if (Number.isNaN(num)) return "0, 0, 0";
-          return [(num >> 16) & 255, (num >> 8) & 255, num & 255].join(", ");
+          if (Number.isNaN(num)) return [0, 0, 0];
+          return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+        }
+        function rgbToHsl(r, g, b) {
+          r /= 255; g /= 255; b /= 255;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b);
+          const l = (max + min) / 2;
+          let h = 0, s = 0;
+          if (max !== min) {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+              case r: h = ((g - b) / d + (g < b ? 6 : 0)); break;
+              case g: h = ((b - r) / d + 2); break;
+              case b: h = ((r - g) / d + 4); break;
+            }
+            h *= 60;
+          }
+          return [Math.round(h), Math.round(s * 100), Math.round(l * 100)];
+        }
+        function rgbToCmyk(r, g, b) {
+          r /= 255; g /= 255; b /= 255;
+          const k = 1 - Math.max(r, g, b);
+          if (k === 1) return [0, 0, 0, 100];
+          const c = (1 - r - k) / (1 - k);
+          const m = (1 - g - k) / (1 - k);
+          const y = (1 - b - k) / (1 - k);
+          return [Math.round(c * 100), Math.round(m * 100), Math.round(y * 100), Math.round(k * 100)];
+        }
+        function escapeHtml(s) {
+          return String(s == null ? "" : s).replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" })[c]);
         }
 
         const params = decodeHash();
         const local = readLocal();
         const src = params ? {
-          name: params.n,
-          tagline: params.t,
-          templateId: params.tpl,
-          paletteId: params.pal,
-          fontId: params.f,
+          name: params.n, tagline: params.t, templateId: params.tpl, paletteId: params.pal, fontId: params.f,
         } : (local ? {
-          name: local.name,
-          tagline: local.tagline,
-          templateId: local.templateId,
-          paletteId: local.paletteId,
-          fontId: local.fontId,
+          name: local.name, tagline: local.tagline, templateId: local.templateId, paletteId: local.paletteId, fontId: local.fontId,
         } : null);
 
         const root = document.getElementById("root");
@@ -171,10 +265,11 @@
           return;
         }
 
-        const [templates, palettes, fonts] = await Promise.all([
+        const [templates, palettes, fonts, assetsDef] = await Promise.all([
           loadJson("data/templates.json"),
           loadJson("data/palettes.json"),
           loadJson("data/fonts.json"),
+          loadJson("data/asset-templates.json"),
         ]);
 
         const template = (templates || []).find((t) => t.id === src.templateId);
@@ -184,108 +279,375 @@
           root.innerHTML = '<div class="empty"><p>Kit references unknown seeds. <a href="app.html">Rebuild ↗</a></p></div>';
           return;
         }
-
         const state = { name: src.name, tagline: src.tagline || "", template, palette, fontPair };
+        const R = window.LernaBrandRender;
 
-        const Render = window.LernaBrandRender;
-        const logoLarge = Render.renderSvg(state, { width: 800, height: 400, background: palette.colors[3] });
+        // Pre-print user inputs (mission / vision / tone)
+        function loadDoc() {
+          try { return JSON.parse(localStorage.getItem("lerna-brand:doc:v1") || "{}"); } catch (e) { return {}; }
+        }
+        function saveDoc(d) {
+          try { localStorage.setItem("lerna-brand:doc:v1", JSON.stringify(d)); } catch (e) {}
+        }
+        const doc = Object.assign({
+          mission: "We exist to make brand work that used to take weeks happen in an afternoon — without trading craft for speed.",
+          vision: "A web where any new founder can ship a coherent brand on day one and iterate from there.",
+          tone: ["Direct", "Confident", "Friendly", "Curious"],
+          values: ["Make it usable", "Trade hype for proof", "Default to open"],
+        }, loadDoc());
 
-        // dark variant: swap c0/c2 against dark bg
-        const darkState = JSON.parse(JSON.stringify(state));
-        darkState.palette = { id: palette.id + "-dark", colors: [palette.colors[2], palette.colors[1], palette.colors[0], palette.colors[3]] };
-        const logoDark = Render.renderSvg(darkState, { width: 800, height: 400, background: "#0a0a0a" });
+        function renderLogo(s, opts) { return R.renderSvg(s, opts); }
+        function darkVariant(s) {
+          return Object.assign({}, s, { palette: { id: s.palette.id + "-dark", colors: [s.palette.colors[2], s.palette.colors[1], s.palette.colors[0], s.palette.colors[3]] } });
+        }
+        function monoVariant(s) {
+          return Object.assign({}, s, { palette: { id: "mono", colors: ["#0a0a0a", "#555555", "#cccccc", "#ffffff"] } });
+        }
 
-        // mono variant: black-on-white
-        const monoState = JSON.parse(JSON.stringify(state));
-        monoState.palette = { id: "mono", colors: ["#0a0a0a", "#555555", "#cccccc", "#ffffff"] };
-        const logoMono = Render.renderSvg(monoState, { width: 800, height: 400, background: "#ffffff" });
+        const colorRoles = ["Primary", "Accent", "Surface", "Background"];
 
-        const palSwatches = palette.colors.map((c, i) => {
-          const role = ["Primary", "Accent", "Surface", "Background"][i] || "Color " + (i + 1);
-          return '<div class="swatch">'
-            + '<div class="swatch-color" style="background:' + c + '"></div>'
-            + '<div class="swatch-meta"><div>' + role + '</div>'
-            + '<div class="hex">' + c.toUpperCase() + '</div>'
-            + '<div class="rgb">rgb(' + hexToRgb(c) + ')</div>'
-            + '</div></div>';
-        }).join("");
+        function pageCover() {
+          return `
+            <section class="page cover" id="page-cover">
+              <span class="page-label">Brand Book</span>
+              <div class="label">Brand Guidelines</div>
+              <div class="cover-logo">${renderLogo(state)}</div>
+              <h2 style="font-family:${fontPair.heading}">${escapeHtml(state.name)}</h2>
+              ${state.tagline ? `<p>${escapeHtml(state.tagline)}</p>` : ""}
+              <span class="page-num">01</span>
+            </section>`;
+        }
+        function pageContents() {
+          const items = [
+            ["Cover", "01"],
+            ["Mission & Vision", "03"],
+            ["Logo · primary", "04"],
+            ["Logo · construction", "05"],
+            ["Logo · variants", "06"],
+            ["Logo · minimum sizes", "07"],
+            ["Logo · do / don't", "08"],
+            ["Color system", "09"],
+            ["Color usage", "10"],
+            ["Type system", "11"],
+            ["Type · in context", "12"],
+            ["Applications", "13"],
+            ["Tone of voice", "14"],
+          ];
+          return `
+            <section class="page" id="page-toc">
+              <span class="page-label">Contents</span>
+              <span class="h-num">02</span>
+              <h3 class="h-title">Contents</h3>
+              <div class="toc">${items.map(i => `<div class="toc-row"><span class="t">${i[0]}</span><span class="p">${i[1]}</span></div>`).join("")}</div>
+              <span class="page-num">02</span>
+            </section>`;
+        }
+        function pageMission() {
+          return `
+            <section class="page" id="page-mission">
+              <span class="page-label">Mission</span>
+              <span class="h-num">03</span>
+              <h3 class="h-title">Why we exist</h3>
+              <p style="font-size:22px;line-height:1.4;max-width:560px;margin-bottom:32px">${escapeHtml(doc.mission)}</p>
+              <h4 style="font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--fg-mute);text-transform:uppercase;margin:0 0 8px">Vision</h4>
+              <p style="font-size:18px;line-height:1.5;max-width:560px;color:var(--fg-mute);margin-bottom:32px">${escapeHtml(doc.vision)}</p>
+              <h4 style="font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--fg-mute);text-transform:uppercase;margin:0 0 8px">Values</h4>
+              <ul style="padding-left:18px;margin:0">${doc.values.map(v => `<li style="margin-bottom:6px">${escapeHtml(v)}</li>`).join("")}</ul>
+              <span class="page-num">03</span>
+            </section>`;
+        }
+        function pageLogoPrimary() {
+          return `
+            <section class="page" id="page-logo">
+              <span class="page-label">Logo · primary</span>
+              <span class="h-num">04</span>
+              <h3 class="h-title">The mark</h3>
+              <div style="border:1px solid var(--line);padding:60px;display:flex;align-items:center;justify-content:center">${renderLogo(state, { width: 600, height: 300 })}</div>
+              <p style="margin-top:12px;font-size:13px;color:var(--fg-mute)">Template: ${escapeHtml(template.name)} · Always reproduce from this guideline.</p>
+              <span class="page-num">04</span>
+            </section>`;
+        }
+        function pageConstruction() {
+          return `
+            <section class="page" id="page-construction">
+              <span class="page-label">Logo · construction</span>
+              <span class="h-num">05</span>
+              <h3 class="h-title">Clear space and proportion</h3>
+              <div class="construction">
+                <div class="construction-frame">${renderLogo(state, { width: 600, height: 300 })}</div>
+              </div>
+              <div class="construction-meta">
+                <div><b>X</b><br/>Reference unit = height of the wordmark.</div>
+                <div><b>Clear space</b><br/>Keep at least 1× X of empty space on all sides.</div>
+                <div><b>Alignment</b><br/>Align to the baseline of the wordmark, not the bounding box.</div>
+              </div>
+              <span class="page-num">05</span>
+            </section>`;
+        }
+        function pageVariants() {
+          return `
+            <section class="page" id="page-variants">
+              <span class="page-label">Logo · variants</span>
+              <span class="h-num">06</span>
+              <h3 class="h-title">Approved variants</h3>
+              <div class="variants">
+                <div>
+                  <div class="variant-card">${renderLogo(state, { width: 500, height: 250 })}</div>
+                  <div class="variant-label">Primary</div>
+                </div>
+                <div>
+                  <div class="variant-card dark">${renderLogo(darkVariant(state), { width: 500, height: 250 })}</div>
+                  <div class="variant-label">On dark</div>
+                </div>
+                <div>
+                  <div class="variant-card">${renderLogo(monoVariant(state), { width: 500, height: 250 })}</div>
+                  <div class="variant-label">Monochrome</div>
+                </div>
+                <div>
+                  <div class="variant-card dark">${renderLogo(monoVariant(darkVariant(state)), { width: 500, height: 250 })}</div>
+                  <div class="variant-label">Mono · negative</div>
+                </div>
+              </div>
+              <span class="page-num">06</span>
+            </section>`;
+        }
+        function pageSizes() {
+          const sizes = [{px: 16, label:"16 px"}, {px: 32, label:"32 px"}, {px: 64, label:"64 px"}, {px: 128, label:"128 px"}, {px: 256, label:"256 px"}];
+          return `
+            <section class="page" id="page-sizes">
+              <span class="page-label">Logo · minimum sizes</span>
+              <span class="h-num">07</span>
+              <h3 class="h-title">Minimum sizes</h3>
+              <p style="font-size:13px;color:var(--fg-mute);max-width:520px">Don't use the primary logo below the smallest size below. For UI scales smaller than 32 px, use the monogram or a simplified mark.</p>
+              <div class="sizes" style="margin-top:24px">
+                ${sizes.map(s => `<div class="size-cell">
+                  <svg viewBox="0 0 400 200" width="${s.px * 2}" height="${s.px}">${R.renderLogo(state)}</svg>
+                  <div class="lbl">${s.label}</div>
+                </div>`).join("")}
+              </div>
+              <span class="page-num">07</span>
+            </section>`;
+        }
+        function pageDonts() {
+          return `
+            <section class="page" id="page-donts">
+              <span class="page-label">Logo · do / don't</span>
+              <span class="h-num">08</span>
+              <h3 class="h-title">Do · Don't</h3>
+              <div class="donts">
+                <div class="dont do">
+                  <span class="x">✓</span>
+                  <div class="pic">${renderLogo(state, { width: 300, height: 150 })}</div>
+                  <div class="cap">Use the approved primary logo on light backgrounds.</div>
+                </div>
+                <div class="dont do">
+                  <span class="x">✓</span>
+                  <div class="pic" style="background:${state.palette.colors[0]}">${renderLogo(darkVariant(state), { width: 300, height: 150 })}</div>
+                  <div class="cap">Use the on-dark variant when over the primary brand colour.</div>
+                </div>
+                <div class="dont do">
+                  <span class="x">✓</span>
+                  <div class="pic">${renderLogo(monoVariant(state), { width: 300, height: 150 })}</div>
+                  <div class="cap">Use the monochrome version for fax, stamping or one-colour print.</div>
+                </div>
+                <div class="dont no">
+                  <span class="x">✕</span>
+                  <div class="pic stretch">${renderLogo(state, { width: 300, height: 150 })}</div>
+                  <div class="cap">Don't stretch, skew or distort the proportions.</div>
+                </div>
+                <div class="dont no">
+                  <span class="x">✕</span>
+                  <div class="pic rotate">${renderLogo(state, { width: 300, height: 150 })}</div>
+                  <div class="cap">Don't rotate or place at an angle.</div>
+                </div>
+                <div class="dont no">
+                  <span class="x">✕</span>
+                  <div class="pic photo">${renderLogo(state, { width: 300, height: 150 })}</div>
+                  <div class="cap">Don't put the primary mark on busy photography without a solid panel.</div>
+                </div>
+              </div>
+              <span class="page-num">08</span>
+            </section>`;
+        }
+        function pageColors() {
+          const cells = state.palette.colors.map((c, i) => {
+            const rgb = hexToRgb(c);
+            const hsl = rgbToHsl(rgb[0], rgb[1], rgb[2]);
+            const cmyk = rgbToCmyk(rgb[0], rgb[1], rgb[2]);
+            return `
+              <div class="color-tile">
+                <div class="top" style="background:${c}"></div>
+                <div class="info">
+                  <div class="role">${colorRoles[i] || "Color " + (i + 1)}</div>
+                  <div class="row"><span>HEX</span><span>${c.toUpperCase()}</span></div>
+                  <div class="row"><span>RGB</span><span>${rgb.join(", ")}</span></div>
+                  <div class="row"><span>HSL</span><span>${hsl[0]}° ${hsl[1]}% ${hsl[2]}%</span></div>
+                  <div class="row"><span>CMYK</span><span>${cmyk.join(", ")}</span></div>
+                </div>
+              </div>`;
+          }).join("");
+          return `
+            <section class="page" id="page-colors">
+              <span class="page-label">Color system</span>
+              <span class="h-num">09</span>
+              <h3 class="h-title">Color system · ${escapeHtml(state.palette.name)}</h3>
+              <div class="colors">${cells}</div>
+              <span class="page-num">09</span>
+            </section>`;
+        }
+        function pageColorUsage() {
+          return `
+            <section class="page" id="page-color-usage">
+              <span class="page-label">Color usage</span>
+              <span class="h-num">10</span>
+              <h3 class="h-title">60 · 30 · 10</h3>
+              <p style="font-size:14px;max-width:560px">A simple proportion for any layout: 60% surface or background, 30% primary text, 10% accent to draw the eye.</p>
+              <div class="usage-bar">
+                <div style="flex:6;background:${state.palette.colors[3]};color:${state.palette.colors[0]}">60% · Background</div>
+                <div style="flex:3;background:${state.palette.colors[0]};color:${state.palette.colors[2]}">30% · Primary</div>
+                <div style="flex:1;background:${state.palette.colors[1]};color:${state.palette.colors[3]}">10% · Accent</div>
+              </div>
+              <p style="font-size:13px;color:var(--fg-mute);margin-top:16px">Accent is the colour the eye lands on. Use it sparingly — buttons, links, highlights — and never as large blocks behind text.</p>
+              <span class="page-num">10</span>
+            </section>`;
+        }
+        function pageType() {
+          return `
+            <section class="page" id="page-type">
+              <span class="page-label">Type system</span>
+              <span class="h-num">11</span>
+              <h3 class="h-title">Type system · ${escapeHtml(fontPair.name)}</h3>
+              <div class="type-spec">
+                <div class="col">
+                  <h4>Heading · ${escapeHtml(fontPair.heading.split(",")[0].replace(/['"]/g, ""))}</h4>
+                  <p style="font-family:${fontPair.heading};font-weight:${fontPair.weights.heading || 700};font-size:48px;line-height:1.05">The quick brown fox</p>
+                </div>
+                <div class="col">
+                  <h4>Body · ${escapeHtml(fontPair.body.split(",")[0].replace(/['"]/g, ""))}</h4>
+                  <p style="font-family:${fontPair.body};font-size:16px;line-height:1.5">A wonderful serenity has taken possession of my entire soul, like these sweet mornings of spring which I enjoy with my whole heart.</p>
+                </div>
+              </div>
+              <div>
+                ${[
+                  { role: "Display", size: 56, fam: fontPair.heading, w: fontPair.weights.heading || 700, t: state.name },
+                  { role: "H1", size: 36, fam: fontPair.heading, w: fontPair.weights.heading || 700, t: "Section title" },
+                  { role: "H2", size: 24, fam: fontPair.heading, w: 600, t: "Subsection" },
+                  { role: "Body", size: 16, fam: fontPair.body, w: 400, t: "Body copy reads naturally at sixteen pixels with comfortable line height." },
+                  { role: "Caption", size: 12, fam: fontPair.body, w: 500, t: "Caption · meta · 12px" },
+                ].map(r => `<div class="scale-row">
+                  <div class="scale-meta">${r.role}<br/>${r.size}px</div>
+                  <div style="font-family:${r.fam};font-weight:${r.w};font-size:${r.size}px;line-height:1.2">${r.t}</div>
+                </div>`).join("")}
+              </div>
+              <span class="page-num">11</span>
+            </section>`;
+        }
+        function pageTypeContext() {
+          return `
+            <section class="page" id="page-type-context">
+              <span class="page-label">Type · in context</span>
+              <span class="h-num">12</span>
+              <h3 class="h-title">In context</h3>
+              <div style="border:1px solid var(--line);padding:40px;margin-top:8px">
+                <p style="font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--fg-mute);text-transform:uppercase;margin:0 0 8px">An example article</p>
+                <h2 style="font-family:${fontPair.heading};font-weight:${fontPair.weights.heading || 700};font-size:42px;line-height:1.1;margin:0 0 16px;letter-spacing:-1px">Why type matters more than colour.</h2>
+                <p style="font-family:${fontPair.body};font-size:17px;line-height:1.6;margin:0 0 14px;color:var(--fg)">Colour gets the credit, but type sets the entire personality of a brand. A serious magazine in Comic Sans is silly. A children's book in Helvetica is cold. Pick a pair and live with it for a year before changing.</p>
+                <p style="font-family:${fontPair.body};font-size:17px;line-height:1.6;margin:0 0 14px;color:var(--fg)">Heading family establishes the brand's voice. Body family is where readers actually spend time — choose for legibility first, character second.</p>
+                <p style="font-family:var(--font-mono);font-size:12px;color:var(--fg-mute);margin:14px 0 0">— ${escapeHtml(state.name)} field notes</p>
+              </div>
+              <span class="page-num">12</span>
+            </section>`;
+        }
+        function pageApplications() {
+          const pickIds = ["business-card-front", "instagram-post", "fb-cover", "email-signature"];
+          const apps = (assetsDef || []).filter(a => pickIds.indexOf(a.id) !== -1);
+          return `
+            <section class="page" id="page-apps">
+              <span class="page-label">Applications</span>
+              <span class="h-num">13</span>
+              <h3 class="h-title">Applications</h3>
+              <div class="apps-grid">
+                ${apps.map(a => `
+                  <div>
+                    <div class="app-card">${R.renderAsset(state, a)}</div>
+                    <div class="app-label">${escapeHtml(a.name)}</div>
+                  </div>
+                `).join("")}
+              </div>
+              <span class="page-num">13</span>
+            </section>`;
+        }
+        function pageVoice() {
+          return `
+            <section class="page" id="page-voice">
+              <span class="page-label">Tone of voice</span>
+              <span class="h-num">14</span>
+              <h3 class="h-title">Tone of voice</h3>
+              <p style="font-size:14px;color:var(--fg-mute);max-width:560px;margin-bottom:24px">Four adjectives anchor the voice. When in doubt, write the version that sounds most like all four.</p>
+              <div class="voice-grid" style="grid-template-columns:repeat(2,1fr)">
+                ${doc.tone.map(t => `<div class="voice-card"><h4>${escapeHtml(t)}</h4><p>Always show up as ${t.toLowerCase()}, even when the topic is hard.</p></div>`).join("")}
+              </div>
+              <div style="margin-top:32px;padding:20px;border:1px solid var(--line);background:var(--bg-alt)">
+                <p style="font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--fg-mute);text-transform:uppercase;margin:0 0 6px">Sample</p>
+                <p style="margin:0;font-size:15px;line-height:1.5">"We rewrote the onboarding so anyone can have a brand by lunch. If you're stuck, ping us — we read every reply."</p>
+              </div>
+              <span class="page-num">14</span>
+            </section>`;
+        }
 
-        const scale = [
-          { role: "Display", size: 56, weight: fontPair.weights.heading || 700, family: fontPair.heading, text: state.name },
-          { role: "H1", size: 36, weight: fontPair.weights.heading || 700, family: fontPair.heading, text: "Section title" },
-          { role: "H2", size: 24, weight: 600, family: fontPair.heading, text: "Subsection" },
-          { role: "Body", size: 16, weight: fontPair.weights.body || 400, family: fontPair.body, text: "Body copy reads naturally at sixteen pixels with comfortable line height. Use this scale for paragraphs longer than a line." },
-          { role: "Caption", size: 12, weight: 500, family: fontPair.body, text: "Caption · meta · 12px" },
-        ];
-        const scaleRows = scale.map((r) => '<div class="scale">'
-          + '<div class="scale-meta">' + r.role + '<br/>' + r.size + 'px</div>'
-          + '<div style="font-family:' + r.family + '; font-weight:' + r.weight + '; font-size:' + r.size + 'px; line-height:1.2">' + r.text + '</div>'
-          + '</div>').join("");
+        // Pre-print prefill form
+        const prefill = `
+          <div class="prefill">
+            <label>Mission (1 sentence)<textarea id="f-mission">${escapeHtml(doc.mission)}</textarea></label>
+            <label>Vision (1 sentence)<textarea id="f-vision">${escapeHtml(doc.vision)}</textarea></label>
+            <label>Tone adjectives (comma-separated, up to 4)<input id="f-tone" value="${escapeHtml(doc.tone.join(", "))}"/></label>
+            <label>Values (comma-separated)<input id="f-values" value="${escapeHtml(doc.values.join(", "))}"/></label>
+          </div>
+        `;
 
-        root.innerHTML = ''
-          + '<article class="sheet">'
-          + '  <div class="cover">'
-          + '    <div class="label">Brand Guidelines</div>'
-          + '    <h2 style="font-family:' + fontPair.heading + '">' + escapeHtml(state.name) + '</h2>'
-          + '    ' + (state.tagline ? '<p>' + escapeHtml(state.tagline) + '</p>' : '')
-          + '  </div>'
+        root.innerHTML = prefill + `
+          <article class="book" id="book">
+            ${pageCover()}
+            ${pageContents()}
+            ${pageMission()}
+            ${pageLogoPrimary()}
+            ${pageConstruction()}
+            ${pageVariants()}
+            ${pageSizes()}
+            ${pageDonts()}
+            ${pageColors()}
+            ${pageColorUsage()}
+            ${pageType()}
+            ${pageTypeContext()}
+            ${pageApplications()}
+            ${pageVoice()}
+          </article>
+        `;
 
-          + '  <section class="section">'
-          + '    <div class="section-head"><h3>Logo · primary</h3><span class="num">01</span></div>'
-          + '    <div class="logo-large">' + logoLarge + '</div>'
-          + '  </section>'
-
-          + '  <section class="section">'
-          + '    <div class="section-head"><h3>Logo · variants</h3><span class="num">02</span></div>'
-          + '    <div class="logo-grid">'
-          + '      <div class="logo-card dark"><div>' + logoDark + '</div></div>'
-          + '      <div class="logo-card"><div>' + logoMono + '</div></div>'
-          + '    </div>'
-          + '  </section>'
-
-          + '  <section class="section">'
-          + '    <div class="section-head"><h3>Palette · ' + escapeHtml(palette.name) + '</h3><span class="num">03</span></div>'
-          + '    <div class="palette">' + palSwatches + '</div>'
-          + '  </section>'
-
-          + '  <section class="section">'
-          + '    <div class="section-head"><h3>Typography · ' + escapeHtml(fontPair.name) + '</h3><span class="num">04</span></div>'
-          + '    <div class="typography-grid">'
-          + '      <div class="typo">'
-          + '        <div class="role">Heading</div>'
-          + '        <div class="family">' + escapeHtml(fontPair.heading) + '</div>'
-          + '        <p class="sample" style="font-family:' + fontPair.heading + '; font-weight:' + (fontPair.weights.heading || 700) + '">The quick brown fox</p>'
-          + '      </div>'
-          + '      <div class="typo">'
-          + '        <div class="role">Body</div>'
-          + '        <div class="family">' + escapeHtml(fontPair.body) + '</div>'
-          + '        <p class="sample body" style="font-family:' + fontPair.body + '">A wonderful serenity has taken possession of my entire soul, like these sweet mornings of spring which I enjoy with my whole heart.</p>'
-          + '      </div>'
-          + '    </div>'
-          + '    <div style="margin-top:20px">' + scaleRows + '</div>'
-          + '  </section>'
-
-          + '  <section class="section">'
-          + '    <div class="section-head"><h3>Usage</h3><span class="num">05</span></div>'
-          + '    <div class="rules-grid">'
-          + '      <div class="rule do"><div class="rule-head">Do</div><p>Give the logo at least 1× its height of empty space on all sides.</p></div>'
-          + '      <div class="rule do"><div class="rule-head">Do</div><p>Use the primary mark over the surface or background color from the palette.</p></div>'
-          + '      <div class="rule dont"><div class="rule-head">Don\'t</div><p>Stretch, skew or recolor the mark outside of the variants above.</p></div>'
-          + '      <div class="rule dont"><div class="rule-head">Don\'t</div><p>Place the primary mark on busy photography without a solid panel behind it.</p></div>'
-          + '    </div>'
-          + '  </section>'
-
-          + '  <div class="colophon">'
-          + '    <span>Generated with lerna-brand · ' + new Date().toLocaleDateString() + '</span>'
-          + '    <span>' + escapeHtml(template.name) + '</span>'
-          + '  </div>'
-          + '</article>';
+        function bindPrefill() {
+          ["mission", "vision", "tone", "values"].forEach((field) => {
+            const el = document.getElementById("f-" + field);
+            if (!el) return;
+            el.addEventListener("input", () => {
+              let val = el.value;
+              if (field === "tone" || field === "values") val = val.split(",").map(s => s.trim()).filter(Boolean);
+              doc[field] = val;
+              saveDoc(doc);
+              redraw();
+            });
+          });
+        }
+        function redraw() {
+          const book = document.getElementById("book");
+          if (book) book.innerHTML = ''
+            + pageCover() + pageContents() + pageMission() + pageLogoPrimary()
+            + pageConstruction() + pageVariants() + pageSizes() + pageDonts()
+            + pageColors() + pageColorUsage() + pageType() + pageTypeContext()
+            + pageApplications() + pageVoice();
+        }
+        bindPrefill();
 
         document.getElementById("btn-print").addEventListener("click", () => window.print());
-
-        function escapeHtml(s) {
-          return String(s == null ? "" : s).replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" })[c]);
-        }
       })();
     </script>
   </body>
