@@ -450,6 +450,73 @@ body[data-page="app"] {
   background: #fef3c7;
   color: #92400e;
 }
+
+/* ---------- ICON PICKER ---------- */
+.icon-picker {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.icon-picker h3 {
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+.icon-picker-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.icon-picker-row input[type="search"] {
+  flex: 1;
+  font: inherit;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+}
+.icon-picker-row input[type="search"]:focus { outline: none; border-color: var(--fg); }
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px;
+  background: var(--bg-alt);
+}
+.icon-cell {
+  background: var(--bg);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+}
+.icon-cell:hover { border-color: var(--fg); }
+.icon-cell.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.icon-cell svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+  color: var(--fg);
+}
+.icon-more {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 11px;
+  color: var(--fg-mute);
+  padding: 8px;
+}
 .palette-swatches {
   display: flex;
   gap: 4px;

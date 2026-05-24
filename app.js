@@ -17,6 +17,7 @@
     tagline: "",
     palette: null,
     fontPair: null,
+    icon: null,
   };
 
   // ---------- persistence ----------
@@ -28,6 +29,7 @@
       templateId: state.template && state.template.id,
       paletteId: state.palette && state.palette.id,
       fontId: state.fontPair && state.fontPair.id,
+      iconId: state.icon && state.icon.id,
     };
   }
   let saveTimer = null;
@@ -66,6 +68,10 @@
     exportStatus: document.getElementById("export-status"),
     exportBrandSheet: document.getElementById("export-brandsheet"),
     toast: document.getElementById("toast"),
+    iconPicker: document.getElementById("icon-picker"),
+    iconSearch: document.getElementById("icon-search"),
+    iconClear: document.getElementById("icon-clear"),
+    iconGrid: document.getElementById("icon-grid"),
   };
 
   let toastTimer = null;
@@ -185,9 +191,101 @@
         const id = btn.dataset.templateId;
         state.template = items.find((t) => t.id === id);
         els.templateGrid.querySelectorAll(".option").forEach((b) => b.classList.toggle("is-selected", b === btn));
+        toggleIconPicker();
         render();
         persist();
       });
+    });
+  }
+
+  // ---------- icon picker ----------
+  function templateUsesIcon(t) {
+    return t && t.kind === "lockup" && t.variant === "square";
+  }
+  let iconCatalog = null;
+  let iconLoadPromise = null;
+  async function ensureIconsLoaded() {
+    if (iconCatalog) return iconCatalog;
+    if (iconLoadPromise) return iconLoadPromise;
+    iconLoadPromise = (async () => {
+      els.iconGrid.innerHTML = '<p class="loading">Loading 5,000+ icons…</p>';
+      const r = await fetch("data/icons.json");
+      iconCatalog = r.ok ? await r.json() : [];
+      return iconCatalog;
+    })();
+    return iconLoadPromise;
+  }
+  function renderIconGrid(filtered) {
+    const cap = 120;
+    const shown = filtered.slice(0, cap);
+    const more = filtered.length - shown.length;
+    if (!shown.length) {
+      els.iconGrid.innerHTML = '<p class="loading">No icons match.</p>';
+      return;
+    }
+    const cells = shown.map((ic) => {
+      const inner = window.LernaBrandRender.renderIcon(ic, "#0a0a0a", 1, 0, 0);
+      return `<button type="button" class="icon-cell" data-icon-id="${ic.id}" title="${ic.name}" aria-label="${ic.name}">
+        <svg viewBox="0 0 24 24" aria-hidden="true">${inner}</svg>
+      </button>`;
+    }).join("");
+    const tail = more > 0 ? `<div class="icon-more">+${more} more — narrow your search</div>` : "";
+    els.iconGrid.innerHTML = cells + tail;
+    els.iconGrid.querySelectorAll(".icon-cell").forEach((b) => {
+      const id = b.dataset.iconId;
+      if (state.icon && state.icon.id === id) b.classList.add("is-selected");
+      b.addEventListener("click", () => {
+        const icon = iconCatalog.find((x) => x.id === id);
+        state.icon = icon || null;
+        els.iconGrid.querySelectorAll(".icon-cell").forEach((c) => c.classList.toggle("is-selected", c === b));
+        render();
+        persist();
+      });
+    });
+  }
+  function iconSearch(query) {
+    if (!iconCatalog) return;
+    const q = String(query || "").trim().toLowerCase();
+    let filtered;
+    if (!q) {
+      // Popular defaults: take the first hundred-ish that are commonly named
+      const seedNames = ["rocket", "leaf", "bolt", "heart", "star", "shield", "globe", "code", "feather", "anchor", "bulb", "flame", "compass", "diamond", "key", "map", "moon", "sun", "wave", "wind", "flag", "lock", "music", "phone", "tree", "wand", "wand-stars", "yin-yang", "atom", "bell"];
+      const matched = [];
+      for (const name of seedNames) {
+        const f = iconCatalog.find((x) => x.id === name);
+        if (f) matched.push(f);
+      }
+      filtered = matched.length ? matched : iconCatalog.slice(0, 120);
+    } else {
+      filtered = iconCatalog.filter((x) => x.id.includes(q) || x.tags.some((t) => t.includes(q)));
+    }
+    renderIconGrid(filtered);
+  }
+  let iconSearchTimer = null;
+  function toggleIconPicker() {
+    if (!els.iconPicker) return;
+    if (templateUsesIcon(state.template)) {
+      els.iconPicker.hidden = false;
+      ensureIconsLoaded().then(() => iconSearch(els.iconSearch.value));
+    } else {
+      els.iconPicker.hidden = true;
+      // clear icon when template doesn't use it
+      if (state.icon) { state.icon = null; render(); persist(); }
+    }
+  }
+  if (els.iconSearch) {
+    els.iconSearch.addEventListener("input", () => {
+      if (iconSearchTimer) clearTimeout(iconSearchTimer);
+      iconSearchTimer = setTimeout(() => iconSearch(els.iconSearch.value), 200);
+    });
+  }
+  if (els.iconClear) {
+    els.iconClear.addEventListener("click", () => {
+      state.icon = null;
+      els.iconSearch.value = "";
+      els.iconGrid.querySelectorAll(".icon-cell").forEach((c) => c.classList.remove("is-selected"));
+      render();
+      persist();
     });
   }
 
@@ -381,10 +479,12 @@
   // ---------- reset ----------
   els.btnReset.addEventListener("click", () => {
     if (!confirm("Reset all selections?")) return;
-    Object.assign(state, { template: null, name: "", tagline: "", palette: null, fontPair: null });
+    Object.assign(state, { template: null, name: "", tagline: "", palette: null, fontPair: null, icon: null });
     els.inputName.value = "";
     els.inputTagline.value = "";
-    document.querySelectorAll(".option.is-selected").forEach((b) => b.classList.remove("is-selected"));
+    document.querySelectorAll(".option.is-selected, .icon-cell.is-selected").forEach((b) => b.classList.remove("is-selected"));
+    if (els.iconPicker) els.iconPicker.hidden = true;
+    if (els.iconSearch) els.iconSearch.value = "";
     clearPersisted();
     setStatus("");
     goTo("template");
@@ -402,7 +502,20 @@
         const btn = els.templateGrid.querySelector(`[data-template-id="${snap.templateId}"]`);
         if (btn) btn.classList.add("is-selected");
         restored = true;
+        toggleIconPicker();
       }
+    }
+    if (snap.iconId) {
+      ensureIconsLoaded().then((cat) => {
+        const ic = cat.find((x) => x.id === snap.iconId);
+        if (ic) {
+          state.icon = ic;
+          render();
+          // mark selected if visible
+          const cell = document.querySelector(`.icon-cell[data-icon-id="${snap.iconId}"]`);
+          if (cell) cell.classList.add("is-selected");
+        }
+      });
     }
     if (snap.paletteId && palettes) {
       state.palette = palettes.find((p) => p.id === snap.paletteId) || null;

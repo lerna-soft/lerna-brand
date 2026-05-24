@@ -41,7 +41,29 @@
       body: fontPair.body || "Inter, sans-serif",
       hWeight: (fontPair.weights && fontPair.weights.heading) || 700,
       bWeight: (fontPair.weights && fontPair.weights.body) || 400,
+      icon: state && state.icon || null,
     };
+  }
+
+  // Tabler-icon shape → minimal SVG element.
+  // Geometry attrs only; the parent <g> supplies fill=none + stroke colour.
+  var GEOM_KEYS = ["d", "cx", "cy", "r", "rx", "ry", "x", "y", "x1", "y1", "x2", "y2", "width", "height", "points"];
+  function shapeToSvg(s) {
+    if (!s || !s.attrs) return "";
+    if (s.attrs.stroke === "none" && s.attrs.fill === "none") return "";
+    var parts = [];
+    for (var i = 0; i < GEOM_KEYS.length; i++) {
+      var k = GEOM_KEYS[i];
+      if (s.attrs[k] != null) parts.push(k + '="' + s.attrs[k] + '"');
+    }
+    return "<" + s.tag + " " + parts.join(" ") + "/>";
+  }
+  function renderIcon(icon, color, scale, tx, ty) {
+    if (!icon || !icon.shapes) return "";
+    var body = icon.shapes.map(shapeToSvg).join("");
+    return '<g transform="translate(' + tx + ' ' + ty + ') scale(' + scale + ')"'
+      + ' fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+      + body + '</g>';
   }
 
   // ---------- templates ----------
@@ -109,9 +131,11 @@
 
     "lockup-icon-left": function (n) {
       var word = escapeXml(n.name.toUpperCase());
-      return ''
-        + '<rect x="60" y="75" width="56" height="56" rx="6" fill="' + n.c1 + '"/>'
-        + '<rect x="74" y="89" width="28" height="28" fill="' + n.c3 + '"/>'
+      var mark = n.icon
+        ? renderIcon(n.icon, n.c1, 2.5, 56, 70)
+        : '<rect x="60" y="75" width="56" height="56" rx="6" fill="' + n.c1 + '"/>'
+          + '<rect x="74" y="89" width="28" height="28" fill="' + n.c3 + '"/>';
+      return mark
         + '<text x="130" y="118"'
         + '  font-family=' + JSON.stringify(n.heading)
         + '  font-weight="' + Math.max(700, n.hWeight) + '"'
@@ -204,6 +228,7 @@
     normalize: normalize,
     initials: initials,
     escapeXml: escapeXml,
+    renderIcon: renderIcon,
     listTemplates: function () { return Object.keys(TEMPLATES); },
   };
 })(typeof window !== "undefined" ? window : this);
