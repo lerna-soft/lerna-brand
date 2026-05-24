@@ -116,8 +116,29 @@
 
         <div class="panel-step" data-panel="export">
           <h2>Export</h2>
-          <p>Download your kit as a JSON manifest. SVG and PNG export are roadmap.</p>
-          <button type="button" class="btn btn-primary btn-lg" id="export-json">Download JSON manifest</button>
+          <p class="panel-hint">Download your logo and brand kit. Everything is generated client-side.</p>
+
+          <div class="export-group">
+            <h3 class="export-group-title">Logo</h3>
+            <div class="export-row">
+              <button type="button" class="btn btn-primary" data-export="svg">SVG (vector)</button>
+              <button type="button" class="btn btn-ghost" data-export="png-512">PNG · 512</button>
+              <button type="button" class="btn btn-ghost" data-export="png-1024">PNG · 1024</button>
+              <button type="button" class="btn btn-ghost" data-export="png-2048">PNG · 2048</button>
+              <button type="button" class="btn btn-ghost" data-export="favicon">Favicon · 64</button>
+            </div>
+          </div>
+
+          <div class="export-group">
+            <h3 class="export-group-title">Kit</h3>
+            <div class="export-row">
+              <button type="button" class="btn btn-primary" id="export-json">JSON manifest</button>
+              <a class="btn btn-ghost" id="export-brandsheet" href="#" target="_blank" rel="noopener">Brand sheet ↗</a>
+            </div>
+          </div>
+
+          <p class="export-note" id="export-status" hidden></p>
+
           <div class="panel-nav">
             <button type="button" class="btn btn-ghost" data-prev>Back</button>
           </div>

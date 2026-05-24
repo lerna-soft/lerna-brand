@@ -441,6 +441,35 @@ body[data-page="app"] {
   font-style: italic;
 }
 
+/* ---------- EXPORT PANEL ---------- */
+.export-group { margin-bottom: 20px; }
+.export-group-title {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--fg-mute);
+  margin: 0 0 10px;
+}
+.export-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.export-row .btn { flex: 1 1 auto; }
+.export-note {
+  font-size: 12px;
+  color: var(--fg-mute);
+  background: var(--bg-alt);
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin: 16px 0 0;
+}
+.export-note.is-error {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
 /* ============================================ */
 /*                  MOBILE                      */
 /* ============================================ */

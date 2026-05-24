@@ -32,6 +32,8 @@
     btnReset: document.getElementById("action-reset"),
     btnExport: document.getElementById("action-export"),
     btnExportJson: document.getElementById("export-json"),
+    exportStatus: document.getElementById("export-status"),
+    exportBrandSheet: document.getElementById("export-brandsheet"),
   };
 
   // ---------- step navigation ----------
@@ -160,9 +162,39 @@
     });
   }
 
-  // ---------- export ----------
+  // ---------- export helpers ----------
+  function slugFromName() {
+    return (state.name || "brand").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "brand";
+  }
+
+  function downloadBlob(blob, filename) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 100);
+  }
+
+  function setStatus(msg, error) {
+    if (!els.exportStatus) return;
+    els.exportStatus.textContent = msg || "";
+    els.exportStatus.hidden = !msg;
+    els.exportStatus.classList.toggle("is-error", !!error);
+  }
+
+  function isReady() {
+    return !!(state.template && state.name && state.palette && state.fontPair);
+  }
+
+  function buildExportSvg(opts) {
+    return window.LernaBrandRender.renderSvg(state, opts || {});
+  }
+
+  // ---------- exports ----------
+
   function exportKitJson() {
-    if (!state.template || !state.name || !state.palette || !state.fontPair) return;
+    if (!isReady()) return;
     const kit = {
       brand: state.name,
       tagline: state.tagline,
@@ -173,15 +205,95 @@
       tool: "lerna-brand",
     };
     const blob = new Blob([JSON.stringify(kit, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${state.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-brand-kit.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    downloadBlob(blob, `${slugFromName()}-brand-kit.json`);
+    setStatus("Saved JSON manifest.");
   }
-  els.btnExport.addEventListener("click", exportKitJson);
+
+  function exportSvg() {
+    if (!isReady()) return;
+    const svg = buildExportSvg({ width: 1200, height: 600, background: state.palette.colors[3] });
+    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    downloadBlob(blob, `${slugFromName()}-logo.svg`);
+    setStatus("Saved SVG.");
+  }
+
+  async function exportPng(size, opts) {
+    if (!isReady()) return;
+    opts = opts || {};
+    const aspect = opts.square ? 1 : 0.5; // 0.5 = 2:1 (400x200)
+    const width = size;
+    const height = Math.round(size * aspect);
+    try {
+      setStatus("Loading fonts…");
+      try { await document.fonts.ready; } catch (e) { /* not supported */ }
+      const svg = buildExportSvg({
+        width: opts.square ? 400 : 400,
+        height: opts.square ? 400 : 200,
+        background: state.palette.colors[3] || "#ffffff",
+        square: opts.square,
+      });
+      const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise((res, rej) => {
+        img.onload = res;
+        img.onerror = () => rej(new Error("svg image load failed"));
+        img.src = url;
+      });
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = state.palette.colors[3] || "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+      const blob = await new Promise((r) => canvas.toBlob(r, "image/png"));
+      if (!blob) throw new Error("canvas.toBlob failed");
+      const suffix = opts.square ? `-favicon-${size}` : `-${size}`;
+      downloadBlob(blob, `${slugFromName()}${suffix}.png`);
+      setStatus(`Saved PNG ${size}px.`);
+    } catch (e) {
+      console.error(e);
+      setStatus("PNG export failed. Try SVG instead — fonts may not embed in PNG on some browsers.", true);
+    }
+  }
+
+  function buildBrandSheetUrl() {
+    if (!isReady()) return "#";
+    const payload = {
+      n: state.name,
+      t: state.tagline,
+      tpl: state.template.id,
+      pal: state.palette.id,
+      f: state.fontPair.id,
+    };
+    const hash = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    return `print.html#${hash}`;
+  }
+
+  // ---------- wire export ----------
+  els.btnExport.addEventListener("click", () => {
+    if (!isReady()) { setStatus("Pick a template, name, palette and typography first.", true); }
+    goTo("export");
+  });
   if (els.btnExportJson) els.btnExportJson.addEventListener("click", exportKitJson);
+  document.querySelectorAll("[data-export]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!isReady()) { setStatus("Pick a template, name, palette and typography first.", true); return; }
+      const kind = btn.dataset.export;
+      if (kind === "svg") return exportSvg();
+      if (kind === "png-512") return exportPng(512);
+      if (kind === "png-1024") return exportPng(1024);
+      if (kind === "png-2048") return exportPng(2048);
+      if (kind === "favicon") return exportPng(64, { square: true });
+    });
+  });
+  if (els.exportBrandSheet) {
+    els.exportBrandSheet.addEventListener("click", (e) => {
+      if (!isReady()) { e.preventDefault(); setStatus("Pick a template, name, palette and typography first.", true); return; }
+      els.exportBrandSheet.href = buildBrandSheetUrl();
+    });
+  }
 
   // ---------- reset ----------
   els.btnReset.addEventListener("click", () => {
