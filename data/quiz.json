@@ -1,0 +1,56 @@
+[
+  {
+    "id": "industry",
+    "q": "What kind of brand are you building?",
+    "options": [
+      { "label": "Tech / SaaS / product", "tags": ["tech", "saas", "startup", "modern", "engineering", "product"] },
+      { "label": "Beauty / wellness", "tags": ["beauty", "wellness", "soft", "luxury", "feminine"] },
+      { "label": "Food / hospitality", "tags": ["food", "warm", "hospitality", "artisan", "vibrant"] },
+      { "label": "Finance / professional services", "tags": ["finance", "corporate", "professional", "trustworthy", "legal", "consulting"] },
+      { "label": "Creative / studio / agency", "tags": ["creative", "agency", "design", "bold", "editorial"] },
+      { "label": "Industrial / trades", "tags": ["industrial", "manufacturing", "trades", "serious"] },
+      { "label": "Fitness / sports", "tags": ["fitness", "sport", "wellness", "energetic", "punch"] },
+      { "label": "Media / publishing / podcast", "tags": ["publisher", "media", "podcast", "publishing", "editorial"] }
+    ]
+  },
+  {
+    "id": "tone",
+    "q": "Pick the tone closest to your brand.",
+    "options": [
+      { "label": "Bold and loud", "tags": ["bold", "vibrant", "energetic", "punch"] },
+      { "label": "Minimal and clean", "tags": ["minimal", "calm", "modern"] },
+      { "label": "Playful and friendly", "tags": ["playful", "fresh", "optimistic", "youth"] },
+      { "label": "Serious and professional", "tags": ["serious", "professional", "trustworthy", "corporate"] }
+    ]
+  },
+  {
+    "id": "audience",
+    "q": "Who is the brand for?",
+    "options": [
+      { "label": "Businesses (B2B)", "tags": ["b2b", "corporate", "professional", "enterprise", "consulting"] },
+      { "label": "Consumers (B2C)", "tags": ["consumer", "fresh", "modern", "ui"] },
+      { "label": "Youth / Gen-Z", "tags": ["youth", "playful", "vibrant", "streetwear"] },
+      { "label": "Luxury / premium", "tags": ["luxury", "premium", "beauty", "boutique"] }
+    ]
+  },
+  {
+    "id": "style",
+    "q": "Which style speaks to you?",
+    "options": [
+      { "label": "Modern / minimal", "tags": ["modern", "minimal", "fresh", "ui"] },
+      { "label": "Classic / timeless", "tags": ["editorial", "hospitality", "legal", "publishing", "classic"] },
+      { "label": "Editorial / magazine", "tags": ["editorial", "magazine", "fashion", "publisher"] },
+      { "label": "Technical / engineered", "tags": ["technical", "engineering", "developer", "ops", "saas"] }
+    ]
+  },
+  {
+    "id": "palette",
+    "q": "Pick a color direction.",
+    "options": [
+      { "label": "Warm tones", "tags": ["warm", "vibrant", "optimistic", "food", "artisan"] },
+      { "label": "Cool tones", "tags": ["calm", "fresh", "fintech", "corporate", "professional"] },
+      { "label": "Monochrome", "tags": ["minimal", "editorial", "industrial"] },
+      { "label": "Colorful / bold", "tags": ["bold", "creative", "vibrant", "playful"] }
+    ]
+  }
+]

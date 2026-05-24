@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lerna Brand · Find your style</title>
+    <meta name="description" content="Answer 5 quick questions, get 24 logo variations curated for your brand." />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Archivo:wght@400;700&family=Archivo+Black&family=Bebas+Neue&family=DM+Sans:wght@400;700&family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@400;700&family=PT+Serif&family=Raleway:wght@400;700&family=Roboto:wght@400;500;700&family=Source+Sans+3:wght@400;600&family=Space+Grotesk:wght@400;700&family=Space+Mono&family=Syne:wght@400;700;800&family=Work+Sans:wght@400;700&display=swap" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="quiz">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="brand" href="index.html" aria-label="Lerna Brand">
+          <span class="brand-mark">LERNABRAND</span>
+        </a>
+        <a class="btn btn-ghost topbar-cta" href="app.html">Skip · Build manually</a>
+      </div>
+    </header>
+
+    <main class="quiz-shell" id="quiz-root">
+      <section class="quiz-stage" id="quiz-stage">
+        <p class="quiz-progress" id="quiz-progress">Loading…</p>
+        <div id="quiz-content"></div>
+      </section>
+    </main>
+
+    <script src="renderer.js"></script>
+    <script>
+      (async function () {
+        "use strict";
+
+        const STORAGE_PREFS = "lerna-brand:quiz:v1";
+        const STORAGE_STATE = "lerna-brand:state:v1";
+
+        async function loadJson(p) { const r = await fetch(p); return r.ok ? await r.json() : null; }
+
+        const [quiz, templates, palettes, fonts] = await Promise.all([
+          loadJson("data/quiz.json"),
+          loadJson("data/templates.json"),
+          loadJson("data/palettes.json"),
+          loadJson("data/fonts.json"),
+        ]);
+
+        const root = document.getElementById("quiz-content");
+        const progressEl = document.getElementById("quiz-progress");
+        const answers = {};
+        let qIdx = 0;
+
+        function showQuestion(i) {
+          const q = quiz[i];
+          progressEl.textContent = `Question ${i + 1} of ${quiz.length}`;
+          root.innerHTML = `
+            <h1 class="quiz-q">${q.q}</h1>
+            <div class="quiz-options">
+              ${q.options.map((o, j) => `
+                <button type="button" class="quiz-option" data-q="${q.id}" data-i="${j}">
+                  <span class="quiz-option-label">${o.label}</span>
+                </button>
+              `).join("")}
+            </div>
+            ${i > 0 ? '<button type="button" class="quiz-back" id="quiz-back">← Back</button>' : ""}
+          `;
+          root.querySelectorAll(".quiz-option").forEach((b) => {
+            b.addEventListener("click", () => {
+              answers[q.id] = q.options[+b.dataset.i].tags;
+              qIdx++;
+              if (qIdx < quiz.length) showQuestion(qIdx);
+              else showVariations();
+            });
+          });
+          const back = document.getElementById("quiz-back");
+          if (back) back.addEventListener("click", () => { qIdx--; showQuestion(qIdx); });
+        }
+
+        function scoreCombination(template, palette, fontPair, prefTags) {
+          const tplTags = template.tags || [];
+          const palTags = (palette.mood || "").split(" · ");
+          const fontTags = (fontPair.mood || "").split(" · ");
+          const allTags = tplTags.concat(palTags).concat(fontTags);
+          return prefTags.reduce((acc, t) => acc + (allTags.indexOf(t) !== -1 ? 1 : 0), 0);
+        }
+
+        function buildVariations(prefTags, n) {
+          const scored = [];
+          for (const t of templates) for (const p of palettes) for (const f of fonts) {
+            const s = scoreCombination(t, p, f, prefTags);
+            if (s > 0) scored.push({ t: t, p: p, f: f, s: s });
+          }
+          // sort by score, randomize ties to keep visual diversity
+          scored.sort((a, b) => b.s - a.s || Math.random() - 0.5);
+          // ensure visual diversity: limit any single template to N/3 picks
+          const cap = Math.max(2, Math.floor(n / 3));
+          const counts = {};
+          const out = [];
+          for (const item of scored) {
+            counts[item.t.id] = counts[item.t.id] || 0;
+            if (counts[item.t.id] >= cap) continue;
+            counts[item.t.id]++;
+            out.push(item);
+            if (out.length >= n) break;
+          }
+          return out;
+        }
+
+        function showVariations() {
+          const prefTags = Object.keys(answers).reduce((acc, k) => acc.concat(answers[k]), []);
+          try { localStorage.setItem(STORAGE_PREFS, JSON.stringify({ tags: prefTags, at: Date.now() })); } catch (e) {}
+          let combos = buildVariations(prefTags, 24);
+          if (combos.length < 24) {
+            // fill the rest with random untagged combos
+            const seen = new Set(combos.map((c) => c.t.id + ":" + c.p.id + ":" + c.f.id));
+            for (const t of templates) for (const p of palettes) for (const f of fonts) {
+              const k = t.id + ":" + p.id + ":" + f.id;
+              if (!seen.has(k)) { combos.push({ t, p, f, s: 0 }); seen.add(k); }
+              if (combos.length >= 24) break;
+            }
+          }
+          progressEl.textContent = "We curated these for you · pick one to keep editing";
+          root.innerHTML = `
+            <div class="quiz-grid" id="quiz-grid">
+              ${combos.map((c, i) => `
+                <button type="button" class="quiz-card" data-i="${i}">
+                  <div class="quiz-card-canvas" style="background:${c.p.colors[3] || '#fff'}">${
+                    window.LernaBrandRender.renderSvg(
+                      { name: "Your Brand", tagline: "", template: c.t, palette: c.p, fontPair: c.f },
+                      { width: 400, height: 200 }
+                    )
+                  }</div>
+                  <div class="quiz-card-meta">
+                    <span>${c.t.name.split(" · ")[0]}</span>
+                    <span>${c.p.name}</span>
+                  </div>
+                </button>
+              `).join("")}
+            </div>
+            <div class="quiz-actions">
+              <button type="button" class="btn btn-ghost" id="regenerate">Regenerate</button>
+              <a class="btn btn-ghost" href="app.html">Build manually instead</a>
+            </div>
+          `;
+          root.querySelectorAll(".quiz-card").forEach((b) => {
+            b.addEventListener("click", () => {
+              const c = combos[+b.dataset.i];
+              const snap = {
+                step: "identity",
+                name: "",
+                tagline: "",
+                templateId: c.t.id,
+                paletteId: c.p.id,
+                fontId: c.f.id,
+              };
+              try { localStorage.setItem(STORAGE_STATE, JSON.stringify(snap)); } catch (e) {}
+              location.href = "app.html";
+            });
+          });
+          document.getElementById("regenerate").addEventListener("click", () => showVariations());
+        }
+
+        if (!quiz || !templates || !palettes || !fonts) {
+          root.innerHTML = '<p class="quiz-q">Failed to load. <a href="app.html">Open the builder ↗</a></p>';
+          return;
+        }
+        showQuestion(0);
+      })();
+    </script>
+  </body>
+</html>

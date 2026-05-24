@@ -3,18 +3,21 @@
     "id": "wordmark-bold",
     "name": "Wordmark · Bold",
     "kind": "wordmark",
+    "tags": ["bold", "tech", "editorial", "modern", "punch"],
     "description": "Heavy display type, all caps, tight tracking. Tech and editorial brands."
   },
   {
     "id": "wordmark-serif",
     "name": "Wordmark · Serif",
     "kind": "wordmark",
+    "tags": ["editorial", "classic", "hospitality", "legal", "luxury", "fashion"],
     "description": "Classic serif wordmark. Hospitality, fashion, legal."
   },
   {
     "id": "wordmark-underline",
     "name": "Wordmark · Underline",
     "kind": "wordmark",
+    "tags": ["bold", "editorial", "modern", "publisher"],
     "description": "Wordmark with a thick accent underline. Bold, editorial.",
     "variant": "underline"
   },
@@ -22,6 +25,7 @@
     "id": "wordmark-bracket",
     "name": "Wordmark · Bracket",
     "kind": "wordmark",
+    "tags": ["technical", "developer", "tech", "modern", "saas"],
     "description": "Name framed by square brackets. Code, tools, startups.",
     "variant": "bracket"
   },
@@ -29,6 +33,7 @@
     "id": "wordmark-stacked",
     "name": "Wordmark · Stacked",
     "kind": "wordmark",
+    "tags": ["agency", "design", "minimal", "creative"],
     "description": "Two lines: brand on top, tagline label beneath in mono. Studios.",
     "variant": "stacked"
   },
@@ -36,6 +41,7 @@
     "id": "lockup-icon-left",
     "name": "Lockup · Icon left",
     "kind": "lockup",
+    "tags": ["saas", "startup", "tech", "modern", "product"],
     "description": "Geometric mark beside the wordmark. SaaS, startups.",
     "variant": "square"
   },
@@ -43,6 +49,7 @@
     "id": "lockup-dot-left",
     "name": "Lockup · Dot",
     "kind": "lockup",
+    "tags": ["minimal", "podcast", "media", "modern"],
     "description": "Accent dot before the wordmark. Minimal, podcast.",
     "variant": "dot"
   },
@@ -50,18 +57,21 @@
     "id": "monogram-circle",
     "name": "Monogram · Circle",
     "kind": "monogram",
+    "tags": ["luxury", "boutique", "personal", "professional", "consulting"],
     "description": "Two-letter monogram inside a circle. Personal brands, studios."
   },
   {
     "id": "emblem-badge",
     "name": "Emblem · Badge",
     "kind": "emblem",
+    "tags": ["artisan", "warm", "craft", "food", "heritage"],
     "description": "Brand inside a pill badge with year/tagline label. Heritage, craft."
   },
   {
     "id": "abstract-mark",
     "name": "Abstract Mark",
     "kind": "abstract",
+    "tags": ["creative", "agency", "modern", "design", "bold"],
     "description": "Stacked diamond shape paired with the wordmark. Modern, agency."
   }
 ]
