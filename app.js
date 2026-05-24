@@ -72,6 +72,14 @@
     iconSearch: document.getElementById("icon-search"),
     iconClear: document.getElementById("icon-clear"),
     iconGrid: document.getElementById("icon-grid"),
+    customPaletteContrast: document.getElementById("custom-palette-contrast"),
+    useCustomPalette: document.getElementById("use-custom-palette"),
+    fontSearchHeading: document.getElementById("font-search-heading"),
+    fontSearchBody: document.getElementById("font-search-body"),
+    fontListHeading: document.getElementById("font-list-heading"),
+    fontListBody: document.getElementById("font-list-body"),
+    fontBrowseSummary: document.getElementById("font-browse-summary"),
+    useCustomFonts: document.getElementById("use-custom-fonts"),
   };
 
   let toastTimer = null;
@@ -130,6 +138,19 @@
   // ---------- input wiring ----------
   els.inputName.addEventListener("input", (e) => { state.name = e.target.value; render(); persist(); });
   els.inputTagline.addEventListener("input", (e) => { state.tagline = e.target.value; render(); persist(); });
+
+  // ---------- tab switching ----------
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const group = tab.dataset.tab;
+      const target = tab.dataset.target;
+      document.querySelectorAll(`.tab[data-tab="${group}"]`).forEach((t) => t.classList.toggle("is-active", t === tab));
+      document.querySelectorAll(`[data-tab-body^="${group}-"]`).forEach((b) => {
+        b.classList.toggle("is-active", b.dataset.tabBody === `${group}-${target}`);
+      });
+      if (group === "typography" && target === "custom") loadFontCatalogIfNeeded();
+    });
+  });
 
   // ---------- contrast helpers ----------
   function hexToRgbArr(hex) {
@@ -286,6 +307,153 @@
       els.iconGrid.querySelectorAll(".icon-cell").forEach((c) => c.classList.remove("is-selected"));
       render();
       persist();
+    });
+  }
+
+  // ---------- custom palette ----------
+  function readCustomColors() {
+    const inputs = document.querySelectorAll('#custom-palette input[type="color"]');
+    return Array.from(inputs).map((i) => i.value);
+  }
+  function refreshCustomContrast() {
+    const cols = readCustomColors();
+    const r = contrastRatio(cols[0], cols[3]);
+    const label = r >= 7 ? "AAA" : r >= 4.5 ? "AA" : r >= 3 ? "AA Large" : "Fail";
+    const pass = r >= 4.5;
+    els.customPaletteContrast.innerHTML = `<span class="contrast-badge ${pass ? "is-pass" : "is-warn"}">${label} · ${r.toFixed(1)}:1</span>`;
+  }
+  document.querySelectorAll('#custom-palette input[type="color"]').forEach((input) => {
+    input.addEventListener("input", () => {
+      const idx = input.dataset.role;
+      const hexInput = document.querySelector(`#custom-palette input[data-role-hex="${idx}"]`);
+      if (hexInput) hexInput.value = input.value;
+      refreshCustomContrast();
+    });
+  });
+  document.querySelectorAll('#custom-palette input[data-role-hex]').forEach((hexInput) => {
+    hexInput.addEventListener("input", () => {
+      let v = hexInput.value.trim();
+      if (!/^#/.test(v)) v = "#" + v;
+      if (/^#([0-9a-f]{6}|[0-9a-f]{3})$/i.test(v)) {
+        const idx = hexInput.dataset.roleHex;
+        const colorInput = document.querySelector(`#custom-palette input[data-role="${idx}"]`);
+        if (colorInput) colorInput.value = v;
+        refreshCustomContrast();
+      }
+    });
+  });
+  if (els.useCustomPalette) {
+    els.useCustomPalette.addEventListener("click", () => {
+      const cols = readCustomColors();
+      state.palette = { id: "custom-" + Date.now().toString(36), name: "Custom", mood: "custom", colors: cols };
+      els.paletteGrid.querySelectorAll(".option").forEach((b) => b.classList.remove("is-selected"));
+      render();
+      persist();
+      showToast("Custom palette applied.");
+    });
+  }
+  refreshCustomContrast();
+
+  // ---------- google fonts browse ----------
+  let fontCatalog = null;
+  let customHeading = null;
+  let customBody = null;
+  const fontLinkCache = new Set();
+
+  function loadFontFamilyCss(family) {
+    if (fontLinkCache.has(family)) return;
+    fontLinkCache.add(family);
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;700&display=swap`;
+    document.head.appendChild(link);
+  }
+
+  async function loadFontCatalogIfNeeded() {
+    if (fontCatalog) return;
+    els.fontListHeading.innerHTML = '<p class="loading">Loading 1,900+ fonts…</p>';
+    els.fontListBody.innerHTML = '<p class="loading">Loading…</p>';
+    const r = await fetch("data/google-fonts.json");
+    fontCatalog = r.ok ? await r.json() : [];
+    renderFontList("heading", "");
+    renderFontList("body", "");
+  }
+
+  function renderFontList(role, query) {
+    if (!fontCatalog) return;
+    const el = role === "heading" ? els.fontListHeading : els.fontListBody;
+    const q = query.trim().toLowerCase();
+    let filtered = q ? fontCatalog.filter((f) => f.family.toLowerCase().includes(q) || f.category.toLowerCase().includes(q)) : fontCatalog;
+    const shown = filtered.slice(0, 60);
+    const selected = role === "heading" ? customHeading : customBody;
+    el.innerHTML = shown.map((f) => `
+      <button type="button" class="font-row ${selected === f.family ? "is-selected" : ""}" data-family="${f.family.replace(/"/g, '&quot;')}" data-role="${role}">
+        <span class="font-row-name" data-specimen="${f.family.replace(/"/g, '&quot;')}">${f.family}</span>
+        <span class="font-row-meta">${f.category}</span>
+      </button>
+    `).join("") + (filtered.length > shown.length ? `<div class="font-list-more">+${filtered.length - shown.length} more — narrow the search</div>` : "");
+    // lazy-load specimens via IntersectionObserver
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const family = e.target.dataset.specimen;
+        loadFontFamilyCss(family);
+        e.target.style.fontFamily = `"${family}", sans-serif`;
+        e.target.style.fontWeight = "600";
+        obs.unobserve(e.target);
+      });
+    }, { root: el, rootMargin: "80px" });
+    el.querySelectorAll(".font-row-name").forEach((n) => obs.observe(n));
+    el.querySelectorAll(".font-row").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const family = btn.dataset.family;
+        if (btn.dataset.role === "heading") customHeading = family;
+        else customBody = family;
+        loadFontFamilyCss(family);
+        renderFontList(role, role === "heading" ? els.fontSearchHeading.value : els.fontSearchBody.value);
+        refreshCustomFontsSummary();
+      });
+    });
+  }
+
+  function refreshCustomFontsSummary() {
+    if (customHeading && customBody) {
+      els.fontBrowseSummary.textContent = `Heading: ${customHeading} · Body: ${customBody}`;
+      els.useCustomFonts.disabled = false;
+    } else {
+      els.fontBrowseSummary.textContent = "Pick a heading AND a body font.";
+      els.useCustomFonts.disabled = true;
+    }
+  }
+  let headingSearchTimer = null, bodySearchTimer = null;
+  if (els.fontSearchHeading) {
+    els.fontSearchHeading.addEventListener("input", () => {
+      if (headingSearchTimer) clearTimeout(headingSearchTimer);
+      headingSearchTimer = setTimeout(() => renderFontList("heading", els.fontSearchHeading.value), 200);
+    });
+  }
+  if (els.fontSearchBody) {
+    els.fontSearchBody.addEventListener("input", () => {
+      if (bodySearchTimer) clearTimeout(bodySearchTimer);
+      bodySearchTimer = setTimeout(() => renderFontList("body", els.fontSearchBody.value), 200);
+    });
+  }
+  if (els.useCustomFonts) {
+    els.useCustomFonts.addEventListener("click", () => {
+      state.fontPair = {
+        id: "custom-" + Date.now().toString(36),
+        name: "Custom",
+        mood: "custom",
+        heading: `"${customHeading}", sans-serif`,
+        body: `"${customBody}", sans-serif`,
+        weights: { heading: 700, body: 400 },
+      };
+      els.fontGrid.querySelectorAll(".option").forEach((b) => b.classList.remove("is-selected"));
+      loadFontFamilyCss(customHeading);
+      loadFontFamilyCss(customBody);
+      render();
+      persist();
+      showToast("Custom font pair applied.");
     });
   }
 
