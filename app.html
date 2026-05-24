@@ -19,6 +19,17 @@
           <span class="brand-mark">LERNABRAND</span>
         </a>
         <div class="app-actions">
+          <div class="projects-menu" id="projects-menu">
+            <button type="button" class="btn btn-ghost" id="projects-toggle">
+              <span id="projects-current">Unsaved</span> ▾
+            </button>
+            <div class="projects-dropdown" id="projects-dropdown" hidden>
+              <div class="projects-list" id="projects-list"></div>
+              <button type="button" class="projects-action" id="projects-save">Save current as…</button>
+              <button type="button" class="projects-action" id="projects-new">New project</button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-ghost" id="action-share">Share</button>
           <button type="button" class="btn btn-ghost" id="action-reset">Reset</button>
           <button type="button" class="btn btn-primary" id="action-export" disabled>Export kit</button>
         </div>

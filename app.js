@@ -9,6 +9,8 @@
 
   const STEPS = ["template", "identity", "palette", "typography", "export"];
   const STORAGE_KEY = "lerna-brand:state:v1";
+  const PROJECTS_KEY = "lerna-brand:projects:v1";
+  const CURRENT_PROJECT_KEY = "lerna-brand:current-project:v1";
 
   const state = {
     step: "template",
@@ -37,6 +39,7 @@
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot())); } catch (e) { /* quota or unavailable */ }
+      try { if (typeof updateCurrentProject === "function") updateCurrentProject(); } catch (e) {}
     }, 200);
   }
   function loadPersisted() {
@@ -152,6 +155,217 @@
       if (group === "typography" && target === "custom") loadFontCatalogIfNeeded();
     });
   });
+
+  // ---------- projects & share ----------
+  function fullSnapshot() {
+    // Full state, including embedded custom palette/font (for share/save).
+    return {
+      v: 1,
+      n: state.name,
+      t: state.tagline,
+      tpl: state.template && state.template.id,
+      // Embed palette if custom; otherwise just id
+      pal: state.palette ? (state.palette.id && state.palette.id.indexOf("custom-") === 0
+        ? { id: state.palette.id, colors: state.palette.colors }
+        : state.palette.id) : null,
+      f: state.fontPair ? (state.fontPair.id && state.fontPair.id.indexOf("custom-") === 0
+        ? { id: state.fontPair.id, heading: state.fontPair.heading, body: state.fontPair.body, weights: state.fontPair.weights }
+        : state.fontPair.id) : null,
+      ic: state.icon && state.icon.id,
+    };
+  }
+  async function applyFullSnapshot(snap, templates, palettes, fonts) {
+    if (!snap) return;
+    if (snap.n) { state.name = snap.n; if (els.inputName) els.inputName.value = snap.n; }
+    if (snap.t) { state.tagline = snap.t; if (els.inputTagline) els.inputTagline.value = snap.t; }
+    if (snap.tpl) {
+      state.template = templates.find((x) => x.id === snap.tpl) || null;
+      toggleIconPicker();
+    }
+    if (snap.pal) {
+      if (typeof snap.pal === "string") state.palette = palettes.find((x) => x.id === snap.pal) || null;
+      else state.palette = { id: snap.pal.id, name: "Custom", mood: "custom", colors: snap.pal.colors };
+    }
+    if (snap.f) {
+      if (typeof snap.f === "string") state.fontPair = fonts.find((x) => x.id === snap.f) || null;
+      else state.fontPair = { id: snap.f.id, name: "Custom", mood: "custom", heading: snap.f.heading, body: snap.f.body, weights: snap.f.weights || { heading: 700, body: 400 } };
+    }
+    if (snap.ic) {
+      try {
+        const cat = await ensureIconsLoaded();
+        const ic = cat.find((x) => x.id === snap.ic);
+        if (ic) state.icon = ic;
+      } catch (e) {}
+    }
+    // Refresh selected UI marks
+    if (state.template && els.templateGrid) {
+      els.templateGrid.querySelectorAll(".option").forEach((b) => b.classList.toggle("is-selected", b.dataset.templateId === state.template.id));
+    }
+    if (state.palette && els.paletteGrid) {
+      els.paletteGrid.querySelectorAll(".option").forEach((b) => b.classList.toggle("is-selected", b.dataset.paletteId === state.palette.id));
+    }
+    if (state.fontPair && els.fontGrid) {
+      els.fontGrid.querySelectorAll(".option").forEach((b) => b.classList.toggle("is-selected", b.dataset.fontId === state.fontPair.id));
+    }
+  }
+
+  function loadProjects() {
+    try { return JSON.parse(localStorage.getItem(PROJECTS_KEY) || "[]"); } catch (e) { return []; }
+  }
+  function saveProjects(list) {
+    try { localStorage.setItem(PROJECTS_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+  function getCurrentProjectId() {
+    try { return localStorage.getItem(CURRENT_PROJECT_KEY); } catch (e) { return null; }
+  }
+  function setCurrentProjectId(id) {
+    try { id ? localStorage.setItem(CURRENT_PROJECT_KEY, id) : localStorage.removeItem(CURRENT_PROJECT_KEY); } catch (e) {}
+  }
+
+  function renderProjectsList() {
+    const list = document.getElementById("projects-list");
+    const projects = loadProjects();
+    const current = getCurrentProjectId();
+    const currentLabel = document.getElementById("projects-current");
+    if (currentLabel) {
+      const cur = projects.find((p) => p.id === current);
+      currentLabel.textContent = cur ? cur.name : "Unsaved";
+    }
+    if (!list) return;
+    if (!projects.length) {
+      list.innerHTML = '<div class="projects-empty">No saved projects yet.</div>';
+      return;
+    }
+    list.innerHTML = projects.map((p) => `
+      <div class="projects-row ${p.id === current ? "is-current" : ""}" data-id="${p.id}">
+        <button type="button" class="projects-open" data-id="${p.id}">${escapeHtmlSimple(p.name)}</button>
+        <span class="projects-meta">${new Date(p.at).toLocaleDateString()}</span>
+        <button type="button" class="projects-delete" data-id="${p.id}" title="Delete">×</button>
+      </div>
+    `).join("");
+    list.querySelectorAll(".projects-open").forEach((b) => {
+      b.addEventListener("click", () => openProject(b.dataset.id));
+    });
+    list.querySelectorAll(".projects-delete").forEach((b) => {
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!confirm("Delete this project?")) return;
+        deleteProject(b.dataset.id);
+      });
+    });
+  }
+  function escapeHtmlSimple(s) {
+    return String(s == null ? "" : s).replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
+  let dataRefs = { templates: [], palettes: [], fonts: [] };
+  async function openProject(id) {
+    const projects = loadProjects();
+    const p = projects.find((x) => x.id === id);
+    if (!p) return;
+    Object.assign(state, { template: null, name: "", tagline: "", palette: null, fontPair: null, icon: null });
+    if (els.inputName) els.inputName.value = "";
+    if (els.inputTagline) els.inputTagline.value = "";
+    document.querySelectorAll(".option.is-selected").forEach((b) => b.classList.remove("is-selected"));
+    await applyFullSnapshot(p.snapshot, dataRefs.templates, dataRefs.palettes, dataRefs.fonts);
+    setCurrentProjectId(id);
+    render();
+    persist();
+    renderProjectsList();
+    closeProjectsDropdown();
+    showToast(`Opened "${p.name}".`);
+  }
+  function deleteProject(id) {
+    const list = loadProjects().filter((p) => p.id !== id);
+    saveProjects(list);
+    if (getCurrentProjectId() === id) setCurrentProjectId(null);
+    renderProjectsList();
+  }
+  function saveCurrentAs(name) {
+    const projects = loadProjects();
+    const id = "p-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+    projects.unshift({ id: id, name: name, at: Date.now(), snapshot: fullSnapshot() });
+    saveProjects(projects);
+    setCurrentProjectId(id);
+    renderProjectsList();
+    showToast(`Saved as "${name}".`);
+  }
+  function updateCurrentProject() {
+    const cur = getCurrentProjectId();
+    if (!cur) return;
+    const projects = loadProjects();
+    const i = projects.findIndex((p) => p.id === cur);
+    if (i === -1) return;
+    projects[i].snapshot = fullSnapshot();
+    projects[i].at = Date.now();
+    saveProjects(projects);
+  }
+
+  function openProjectsDropdown() {
+    const d = document.getElementById("projects-dropdown");
+    if (d) d.hidden = false;
+    renderProjectsList();
+  }
+  function closeProjectsDropdown() {
+    const d = document.getElementById("projects-dropdown");
+    if (d) d.hidden = true;
+  }
+  document.addEventListener("click", (e) => {
+    const menu = document.getElementById("projects-menu");
+    if (menu && !menu.contains(e.target)) closeProjectsDropdown();
+  });
+  const projectsToggle = document.getElementById("projects-toggle");
+  if (projectsToggle) projectsToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const d = document.getElementById("projects-dropdown");
+    if (d) (d.hidden ? openProjectsDropdown() : closeProjectsDropdown());
+  });
+  const projectsSave = document.getElementById("projects-save");
+  if (projectsSave) projectsSave.addEventListener("click", () => {
+    const name = prompt("Project name?", state.name || "My brand");
+    if (name && name.trim()) saveCurrentAs(name.trim());
+    closeProjectsDropdown();
+  });
+  const projectsNew = document.getElementById("projects-new");
+  if (projectsNew) projectsNew.addEventListener("click", () => {
+    if (state.name && !confirm("Start a new project? Current unsaved changes will be cleared.")) return;
+    Object.assign(state, { step: "template", template: null, name: "", tagline: "", palette: null, fontPair: null, icon: null });
+    if (els.inputName) els.inputName.value = "";
+    if (els.inputTagline) els.inputTagline.value = "";
+    document.querySelectorAll(".option.is-selected, .icon-cell.is-selected").forEach((b) => b.classList.remove("is-selected"));
+    if (els.iconPicker) els.iconPicker.hidden = true;
+    setCurrentProjectId(null);
+    clearPersisted();
+    goTo("template");
+    render();
+    renderProjectsList();
+    closeProjectsDropdown();
+  });
+
+  // Share via URL hash
+  function buildShareUrl() {
+    const snap = fullSnapshot();
+    const payload = btoa(unescape(encodeURIComponent(JSON.stringify(snap))));
+    return location.origin + location.pathname + "#kit=" + payload;
+  }
+  async function copyShareUrl() {
+    if (!isReady()) { showToast("Pick template, name, palette and typography first."); return; }
+    const url = buildShareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast("Share link copied to clipboard.");
+    } catch (e) {
+      // fallback: prompt
+      prompt("Copy this URL:", url);
+    }
+  }
+  const actionShare = document.getElementById("action-share");
+  if (actionShare) actionShare.addEventListener("click", copyShareUrl);
+
+  function readShareHash() {
+    const m = (location.hash || "").match(/#kit=([A-Za-z0-9+/=_-]+)/);
+    if (!m) return null;
+    try { return JSON.parse(decodeURIComponent(escape(atob(m[1])))); } catch (e) { return null; }
+  }
 
   // ---------- contrast helpers ----------
   function hexToRgbArr(hex) {
@@ -830,10 +1044,27 @@
       loadJson("data/palettes.json"),
       loadJson("data/fonts.json"),
     ]);
+    dataRefs.templates = templates;
+    dataRefs.palettes = palettes;
+    dataRefs.fonts = fonts;
     renderTemplates(templates);
     renderPalettes(palettes);
     renderFonts(fonts);
+    renderProjectsList();
 
+    // 1. Shared kit via URL hash takes priority
+    const sharedSnap = readShareHash();
+    if (sharedSnap) {
+      await applyFullSnapshot(sharedSnap, templates, palettes, fonts);
+      // Clear the hash so refresh doesn't keep re-applying
+      history.replaceState(null, "", location.pathname);
+      setCurrentProjectId(null);
+      renderProjectsList();
+      showToast("Loaded a shared kit. Save it as a project to keep it.");
+      render();
+      return;
+    }
+    // 2. Otherwise restore from persisted state
     const snap = loadPersisted();
     const restored = restoreFromSnapshot(snap, templates, palettes, fonts);
     if (restored) showToast("Restored from your last session. Hit Reset to start over.");
