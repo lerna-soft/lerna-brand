@@ -67,35 +67,14 @@
 
   // ---------- preview render ----------
   function render() {
-    const name = state.name.trim() || "YOUR BRAND";
     const tagline = state.tagline.trim() || "Your tagline lives here.";
-    const fontFamily = state.fontPair?.heading || "Inter, sans-serif";
-    const fgColor = state.palette?.colors?.[0] || "currentColor";
 
-    els.previewLogo.innerHTML = `
-      <svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <text x="160" y="78" text-anchor="middle"
-              font-family='${fontFamily}'
-              font-weight="800" font-size="56" fill="${fgColor}">
-          ${escapeXml(name.toUpperCase())}
-        </text>
-      </svg>
-    `;
+    els.previewLogo.innerHTML = window.LernaBrandRender.renderSvg(state);
     els.previewTagline.textContent = tagline;
     els.previewTagline.style.fontFamily = state.fontPair?.body || "";
 
     const ready = state.template && state.name && state.palette && state.fontPair;
     els.btnExport.disabled = !ready;
-  }
-
-  function escapeXml(s) {
-    return String(s).replace(/[<>&'"]/g, (c) => ({
-      "<": "&lt;",
-      ">": "&gt;",
-      "&": "&amp;",
-      "'": "&apos;",
-      '"': "&quot;",
-    })[c]);
   }
 
   // ---------- input wiring ----------
@@ -122,7 +101,7 @@
     els.templateGrid.innerHTML = items.map((t) => `
       <button type="button" class="option" data-template-id="${t.id}">
         <span class="option-title">${t.name}</span>
-        <span class="option-meta">${t.kind}</span>
+        <span class="option-desc">${t.description || ""}</span>
       </button>
     `).join("");
     els.templateGrid.querySelectorAll(".option").forEach((btn) => {
@@ -146,6 +125,7 @@
         <span class="palette-swatches">
           ${p.colors.map((c) => `<span style="background:${c}"></span>`).join("")}
         </span>
+        ${p.mood ? `<span class="option-meta">${p.mood}</span>` : ""}
       </button>
     `).join("");
     els.paletteGrid.querySelectorAll(".option").forEach((btn) => {
@@ -165,8 +145,9 @@
     }
     els.fontGrid.innerHTML = items.map((f) => `
       <button type="button" class="option" data-font-id="${f.id}">
-        <span class="option-title" style="font-family:${f.heading}">${f.name}</span>
-        <span style="font-family:${f.body}; font-size:12px; color:var(--fg-mute)">${f.heading.split(",")[0]} / ${f.body.split(",")[0]}</span>
+        <span class="option-title" style="font-family:${f.heading}; font-weight:${f.weights?.heading || 700}">${f.name}</span>
+        <span class="font-specimen" style="font-family:${f.body}">${f.heading.split(",")[0].replace(/['"]/g, "")} / ${f.body.split(",")[0].replace(/['"]/g, "")}</span>
+        ${f.mood ? `<span class="option-meta">${f.mood}</span>` : ""}
       </button>
     `).join("");
     els.fontGrid.querySelectorAll(".option").forEach((btn) => {

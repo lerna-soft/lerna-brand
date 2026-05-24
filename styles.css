@@ -302,7 +302,9 @@ body[data-page="app"] {
 .preview-logo svg {
   width: 100%;
   height: auto;
-  max-width: 320px;
+  max-width: 420px;
+  display: block;
+  margin: 0 auto;
 }
 .preview-tagline {
   font-size: 14px;
@@ -400,6 +402,27 @@ body[data-page="app"] {
   font-size: 13px;
   margin-bottom: 6px;
   display: block;
+  line-height: 1.2;
+}
+.option .option-desc {
+  display: block;
+  font-size: 11px;
+  color: var(--fg-mute);
+  line-height: 1.4;
+}
+.option .option-meta {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-mute);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.option .font-specimen {
+  display: block;
+  font-size: 11px;
+  color: var(--fg-mute);
 }
 .palette-swatches {
   display: flex;
